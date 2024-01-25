@@ -7,16 +7,23 @@
     </head>
     
     <body>
-        <div>
-            <h1>CISC 499 - W24 - Device Fingerprinting</h1>
-        </div>
-
-        <div>
-            <form action="/submit" method="post">
-            <label for="inputField">Type: "The quick brown fox jumps over the lazy dog"</label><br>
-            <input type="text" id="inputField" name="inputField"><br><br>
-            <!--<input type="submit" value="Submit">-->
-        </div>
-    </form>
+        <form>
+          <label for="inputField">Type something:</label><br>
+          <input type="text" id="inputField" name="inputField">
+        </form>
+        
+        <p>Keydown Time: <span id="keydownTime"></span></p>
+        <p>Keyup Time: <span id="keyupTime"></span></p>
+        
+        <script>
+        document.getElementById('inputField').addEventListener('keydown', function(event) {
+          document.getElementById('keydownTime').textContent = new Date().toLocaleTimeString();
+        });
+        
+        document.getElementById('inputField').addEventListener('keyup', function(event) {
+          document.getElementById('keyupTime').textContent = new Date().toLocaleTimeString();
+        });
+        </script>
+        
     </body>
 </html>
