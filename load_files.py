@@ -14,9 +14,10 @@ logger = logging.getLogger()
 PATH = 'data'
 
 """
-Gets and returns all specified csv filenames from a directory
+Gets all specified csv filenames from a directory
 Directory is set by global PATH variable
-No Arguments 
+Returns: files as list of strings
+Requires: N/A
 """
 def get_files():
     files = os.listdir(PATH)
@@ -26,6 +27,11 @@ def get_files():
             files.remove(file)
     return files
 
+"""
+Gets the header name from row value of first column
+Returns: headers as a list of strings
+Requires: filename (as a csv) 
+"""
 def get_headers(filename):
     with open(str(PATH + '/' + filename), newline='\n') as file:
         reader = csv.reader(file, delimiter=',')
@@ -37,19 +43,37 @@ def get_headers(filename):
 
     return headers
 
+"""
+Converts csv to pandas df with appropriate headers
+Returns: Pandas Dataframe of csv file
+Requires: filename - csv file, headers - string list of column headers
+"""
 def get_data(filename, headers):
     return pd.read_csv(str(PATH + '/' + filename), names=headers, encoding='latin1', quotechar='"')
 
 def main():
-    logger.info(" ====START OF LOG====")
+    logger.info(" ====START OF LOG====") #start of logging session
 
+    #get files from the data directory
     files = get_files()
     logger.debug("FILENAMES :" +  str(files))
 
+    #initialize new dictionary to store data based on name-df pair
+    data = {}
+
+    #loop through files
     for i in range(0, len(files), 2):
+        #get headers for given file
         headers = get_headers(files[i+1])
         logger.debug("FOR : %s, HEADERS : %s", files[i], str(headers))
-        #get_data(files[i], headers)
+
+        #get data for given file
+        file_data = get_data(files[i], headers)
+        logger.debug
+
+        #append to data dictionary
+        data[files[i]] = file_data
+        logger.debug("%s ==> DATA PROSESSED AND ADDED", files[i])
 
     logger.info("====END OF LOG==== \n")
 
