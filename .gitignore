@@ -1,2 +1,6 @@
 *.csv
 *.log
+*.txt
+*.tsv
+data/
+cisc499.wiki/
