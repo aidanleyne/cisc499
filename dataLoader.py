@@ -26,7 +26,7 @@ class CSVReader:
         self.data = {}
 
         if autoload:
-            self.info(" ====START OF LOG====") #start of logging session
+            logger.info("====START OF LOG====") #start of logging session
 
             #get files from the data directory
             files = self.get_files()
@@ -98,7 +98,7 @@ class CSVWriter:
         #allow for path specification
         PATH = path
 
-        self.info(" ====START OF LOG====") #start of logging session
+        self.info("====START OF LOG====") #start of logging session
 
         for table in data:
             df = data[table]
@@ -114,33 +114,34 @@ class CSVWriter:
             except:
                 logger.error("Issue writing data for : " + str(table))
                 pass
-                
+
+        logger.info("====END OF LOG==== \n") 
         return
 
 """
 Class for reading files from tab-delimited format
 """
 class TSVReader:
-    def __init__self(self, path=PATH):
+    def __init__(self, path=PATH):
         #allow for path specification
         PATH = path
 
         self.data = {}
 
-        self.info(" ====START OF LOG====") #start of logging session
+        logger.debug("====START OF LOG====") #start of logging session
 
         files = self.get_files()
         logger.debug("Begining Import on " + str(len(files)) + " files...")
 
         for file in files:
             #read file into pandas df and append to dict
-            self.data[file] = pd.read_csv(file, header=0, delimiter='\t')
+            self.data[file] = pd.read_csv(str(PATH + '/' + file), header=0, delimiter='\t')
             logger.debug("Read in file : " + str(file))
-            print(self.data[file])
 
         logger.debug("All data in " + str(PATH) + " processed")
-        logger.debug("Data-dictionary is of length : " + len(self.data))
+        logger.debug("Data-dictionary is of length : " + str(len(self.data)))
 
+        logger.info("====END OF LOG==== \n")
         return
 
     """
@@ -157,6 +158,9 @@ class TSVReader:
                 files.remove(file)
         return files
 
+"""
+Class for writing files to tab-delimited format
+"""
 class TSVWriter:
     def __init__(self):
         return
@@ -224,7 +228,9 @@ class SQLReader:
         return
 
 def main():
-    reader = TSVReader()
+    tsv = TSVReader('data/Keystrokes/files')
+    #csv = CSVReader()
+
 
     return
 
