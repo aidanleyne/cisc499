@@ -154,14 +154,17 @@ class TSVReader:
     def get_files(self):
         files = os.listdir(PATH)
 
-        for file in files:
-            if file[:-4] != '.txt':
-                logger.debug(file)
-                logger.debug("Incorrect file type removed. File : " + str(file))
-                files.remove(file)
+        cleaned = []
 
-        
-        return files
+        for file in files:
+            if file.endswith('.txt'):
+                cleaned.append(file)
+                logger.debuf("File retained : " + str(file))
+
+            else:
+                logger.debug("Incorrect file type removed. File : " + str(file))
+            
+        return cleaned
 
 """
 Class for writing files to tab-delimited format
@@ -233,13 +236,10 @@ class SQLReader:
         return
 
 def main():
-    if sys.argv[1] == '':
+    if len(sys.argv) == 0:
         tsv = TSVReader()
     else:
         tsv = TSVReader(sys.argv[1])
-
-    #csv = CSVReader()
-
 
     return
 
