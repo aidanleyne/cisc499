@@ -2,5 +2,9 @@
 *.log
 *.txt
 *.tsv
+*.sql
+*.jpg
+*.png
 data/
+images/
 cisc499.wiki/
