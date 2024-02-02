@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import csv
 import pandas as pd
@@ -154,8 +155,12 @@ class TSVReader:
         files = os.listdir(PATH)
 
         for file in files:
-            if ('.txt' or '.tsv') not in file:
+            if file[:-4] != '.txt':
+                logger.debug(file)
+                logger.debug("Incorrect file type removed. File : " + str(file))
                 files.remove(file)
+
+        
         return files
 
 """
@@ -228,7 +233,11 @@ class SQLReader:
         return
 
 def main():
-    tsv = TSVReader('data/Keystrokes/files')
+    if sys.argv[1] == '':
+        tsv = TSVReader()
+    else:
+        tsv = TSVReader(sys.argv[1])
+
     #csv = CSVReader()
 
 
