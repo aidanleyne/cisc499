@@ -61,10 +61,17 @@ class CSVReader:
     def get_files(self):
         files = os.listdir(PATH)
 
+        cleaned = []
+
         for file in files:
-            if '.csv' not in file:
-                files.remove(file)
-        return files
+            if file.endswith('.csv'):
+                cleaned.append(file)
+                logger.debug("File retained : " + str(file))
+
+            else:
+                logger.debug("Incorrect file type removed. File : " + str(file))
+            
+        return cleaned
 
     """
     Gets the header name from row value of first column
@@ -105,7 +112,7 @@ class CSVWriter:
             df = data[table]
             logger.debug("Selected data for table : " + str(table))
             
-            if table[-4:] != '.csv':
+            if not table.endswith('.csv'):
                 table = table + '.csv'
                 logger.debug("Added .csv to : " + str(table))
 
@@ -159,7 +166,7 @@ class TSVReader:
         for file in files:
             if file.endswith('.txt'):
                 cleaned.append(file)
-                logger.debuf("File retained : " + str(file))
+                logger.debug("File retained : " + str(file))
 
             else:
                 logger.debug("Incorrect file type removed. File : " + str(file))
@@ -170,7 +177,28 @@ class TSVReader:
 Class for writing files to tab-delimited format
 """
 class TSVWriter:
-    def __init__(self):
+    def __init__(self, data, path=PATH):
+        #allow for path specification
+        PATH = path
+
+        self.info("====START OF LOG====") #start of logging session
+
+        for table in data:
+            df = data[table]
+            logger.debug("Selected data for table : " + str(table))
+            
+            if not table.endswith('.tsv'):
+                table = table + '.tsv'
+                logger.debug("Added .tsv to : " + str(table))
+
+            try:
+                df.to_csv(table, encoding='utf-8', index=False)
+                logger.debug("Data successfully written to : " + str(table))
+            except:
+                logger.error("Issue writing data for : " + str(table))
+                pass
+
+        logger.info("====END OF LOG==== \n") 
         return
 
 """
@@ -220,12 +248,17 @@ class SQLReader:
     def get_files(self):
         files = os.listdir(PATH)
 
-        for file in files:
-            if '.sql' not in file:
-                logger.debug("Removing file : " + str(file))
-                files.remove(file)
+        cleaned = []
 
-        return files
+        for file in files:
+            if file.endswith('.sql'):
+                cleaned.append(file)
+                logger.debug("File retained : " + str(file))
+
+            else:
+                logger.debug("Incorrect file type removed. File : " + str(file))
+            
+        return cleaned
 
     """
     Reads from existing db and adds the contents to data
@@ -233,6 +266,14 @@ class SQLReader:
     Returns: 
     """
     def read_data(self, databse, filename):
+        return
+
+"""
+Class for writing files to sql table
+Also allows for database export to file
+"""
+class SQLWriter:
+    def __init__(self):
         return
 
 def main():
