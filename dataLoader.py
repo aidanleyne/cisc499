@@ -192,7 +192,7 @@ class TSVWriter:
                 logger.debug("Added .tsv to : " + str(table))
 
             try:
-                df.to_csv(table, encoding='utf-8', index=False)
+                df.to_csv(table, encoding='utf-8', sep='\t', index=False)
                 logger.debug("Data successfully written to : " + str(table))
             except:
                 logger.error("Issue writing data for : " + str(table))
