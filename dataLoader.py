@@ -204,16 +204,21 @@ class TSVWriter:
 """
 Class for loading files from .sql format
 """
-class SQLReader:
-    def __init__(self, server="localhost", db="*", username="root", psswd="", path=PATH):
+class SQLReader():
+    def __init__(self):
+        return
+
+"""
+Class for writing files to sql table
+Also allows for database export to file
+"""
+class SQLWriter:
+    def __init__(self, data, server="localhost", db="mysql", username="root", psswd="", new=False, path=PATH):
         #allow for path specification
         PATH = path
 
-        #dict to store data based on <filename, df> pair 
-        self.data = {}
-
         #create new db
-        if db == "*":
+        if new:
             #connect to the server & open cursor
             db = sql.connect(user=username, password=psswd, host=server)
             cursor = db.cursor()
@@ -222,7 +227,7 @@ class SQLReader:
             files = self.get_files()
             for file in files:
                 try:
-                    self.load_sql()
+                    self.write_data()
                     logger.debug("Database created for " + str(file) + " on " + str(server))
                 except:
                     logger.error("Failed to create database : " + file)
@@ -235,7 +240,6 @@ class SQLReader:
                 cursor = db.cursor()
                 logger.debug("Connected to databse : " + str(db))
 
-                data[db] = self.read_data()
             except:
                 logger.error("Cannot connect to database : " + str(db))
 
@@ -265,15 +269,7 @@ class SQLReader:
     Requires: 
     Returns: 
     """
-    def read_data(self, databse, filename):
-        return
-
-"""
-Class for writing files to sql table
-Also allows for database export to file
-"""
-class SQLWriter:
-    def __init__(self):
+    def read_data(self):
         return
 
 def main():
