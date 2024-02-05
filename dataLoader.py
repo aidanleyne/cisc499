@@ -219,18 +219,13 @@ class SQLWriter:
 
         #create new db
         if new:
-            #connect to the server & open cursor
-            db = sql.connect(user=username, password=psswd, host=server)
-            cursor = db.cursor()
-            logger.info("Connected to %s" + str(server))
-
-            files = self.get_files()
-            for file in files:
-                try:
-                    self.write_data()
-                    logger.debug("Database created for " + str(file) + " on " + str(server))
-                except:
-                    logger.error("Failed to create database : " + file)
+            try:
+                #connect to the server & open cursor
+                db = sql.connect(user=username, password=psswd, host=server)
+                cursor = db.cursor()
+                logger.info("Connected to %s" + str(server))
+            except:
+                logger.error("Cannot connect to databse : " + str(db))
 
         #connect to existing db
         else:
