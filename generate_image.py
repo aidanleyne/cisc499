@@ -1,6 +1,6 @@
 from PIL import Image
 
-keystroke_file = open('data/36_keystrokes.txt', 'r')
+keystroke_file = open("36_keystrokes.txt", 'r')
 events = []
 
 for line in keystroke_file.readlines()[2:]:
@@ -8,13 +8,13 @@ for line in keystroke_file.readlines()[2:]:
     events.append(arr[5])
     events.append(arr[6])
     
-ef = events[:600]
+ef = events[0:600]
 
 image = Image.new('L', (600, 481))
 
 for hz in range(20,501):
     for i in range(len(ef)):
-        value = int(ef[i]) % (100/hz)
-        image.putpixel((i,hz-20), int(value/(100/hz)*255))
+        value = int(ef[i])%(1000/hz)
+        image.putpixel((i,hz-20), int((value/(1000/hz))*255))
 
-image.save("images/36_keystrokes.jpg")
+image.save("pi.png")
