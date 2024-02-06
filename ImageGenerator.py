@@ -34,24 +34,30 @@ class ImageGenerator:
 
         #get columns from passed dataframe
         self.data = dataframe.loc[:,["PRESS_TIME", "RELEASE_TIME"]]
+        print(self.data)
+
+        #compute the pixels for the image
+        #self.compute(events)
 
         #save image to destination
-        savename = str(PATH + '/' + str(filename) + '.jpg')
+        savename = str(PATH + '/' + str(filename) + '.png')
         self.image.save(savename)
-        logger.debug("Image generated for data. Stored under : ", savename)
+        logger.debug("Image generated for data. Stored under : " + savename)
 
     """
     Performs necessay computations to color-in image
     Requires: N/A
     Returns: N/A
     """
-    def compute(self):
+    def compute(self, ef):
         for hz in range(20,501):
             for i in range(len(ef)):
-                value = int(ef[i]) % (100/hz)
-                self.image.putpixel((i,hz-20), int(value/(100/hz)*255))
+                value = int(ef[i]) % (1000/hz)
+                self.image.putpixel((i,hz-20), int(value/(1000/hz)*255))
    
 #@TODO: what did this line do originally?
+#we should have 600 events that are a combo of a start-end pair
+#confirm this with danel/ethan
 #ef = events[:600]
 
 def main():
