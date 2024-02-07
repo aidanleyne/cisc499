@@ -13,13 +13,14 @@ OUTPATH = 'images'
 
 if len(sys.argv) > 1:
     INPATH = sys.argv[1]
+    print("INPATH=", INPATH)
 
 elif len(sys.argv) > 2:
     INPATH = sys.argv[1]
-    OUTPATH = sys.argv[0]
+    OUTPATH = sys.argv[2]
 
-gen = ImageGenerator(OUTPATH)
 reader = TSVReader(INPATH)
+gen = ImageGenerator(OUTPATH)
 
 data = reader.data
 

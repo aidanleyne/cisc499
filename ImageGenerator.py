@@ -10,7 +10,7 @@ logging.basicConfig(filename="ImageGenerator.log",
                     level=logging.DEBUG)
 logger = logging.getLogger()
 
-#default path
+###DEFAULT PATH###
 PATH = "images"
 
 """
