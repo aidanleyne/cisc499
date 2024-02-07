@@ -235,7 +235,7 @@ class SQLReader:
                 cursor = db.cursor()
                 logger.debug("Connected to databse : " + str(db))
 
-                data[db] = self.read_data()
+                self.data[db] = self.read_data()
             except:
                 logger.error("Cannot connect to database : " + str(db))
 
@@ -275,14 +275,15 @@ Also allows for database export to file
 class SQLWriter:
     def __init__(self):
         return
-
+    
+    def write(self):
+        return
+    
 def main():
     if len(sys.argv) == 0:
         tsv = TSVReader()
     else:
         tsv = TSVReader(sys.argv[1])
-
-    return
 
 if __name__ == "__main__":
     main()
