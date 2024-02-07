@@ -12,7 +12,7 @@ logging.basicConfig(filename="dataLoader.log",
                     level=logging.DEBUG)
 logger = logging.getLogger()
 
-###PATH TO DATA####
+###self._PATH TO DATA####
 PATH = 'data'
 
 """
@@ -21,7 +21,7 @@ Class for loading files from .csv format
 class CSVReader:
     def __init__(self, path=PATH, autoload=True):
         #allow for path specification
-        PATH = path
+        self._PATH = path
 
         #dict to store data based on <filename, df> pair 
         self.data = {}
@@ -59,7 +59,7 @@ class CSVReader:
     Requires: N/A
     """
     def get_files(self):
-        files = os.listdir(PATH)
+        files = os.listdir(self._PATH)
 
         cleaned = []
 
@@ -79,7 +79,7 @@ class CSVReader:
     Requires: filename (as a csv) 
     """
     def get_headers(self, filename):
-        with open(str(PATH + '/' + filename), newline='\n') as file:
+        with open(str(self._PATH + '/' + filename), newline='\n') as file:
             reader = csv.reader(file, delimiter=',')
             headers = []
             for row in reader:
@@ -96,7 +96,7 @@ class CSVReader:
     Requires: filename - csv file, headers - string list of column headers
     """
     def get_data(self, filename, headers):
-        return pd.read_csv(str(PATH + '/' + filename), names=headers, encoding='latin1', quotechar='"')
+        return pd.read_csv(str(self._PATH + '/' + filename), names=headers, encoding='latin1', quotechar='"')
 
 """
 Class for writing files to .csv format
@@ -104,7 +104,7 @@ Class for writing files to .csv format
 class CSVWriter:
     def __init__(self, data, path=PATH):
         #allow for path specification
-        PATH = path
+        self._PATH = path
 
         self.info("====START OF LOG====") #start of logging session
 
@@ -132,7 +132,7 @@ Class for reading files from tab-delimited format
 class TSVReader:
     def __init__(self, path=PATH):
         #allow for path specification
-        PATH = path
+        self._PATH = path
 
         self.data = {}
 
@@ -143,10 +143,10 @@ class TSVReader:
 
         for file in files:
             #read file into pandas df and append to dict
-            self.data[file] = pd.read_csv(str(PATH + '/' + file), header=0, delimiter='\t')
+            self.data[file] = pd.read_csv(str(self._PATH + '/' + file), header=0, delimiter='\t')
             logger.debug("Read in file : " + str(file))
 
-        logger.debug("All data in " + str(PATH) + " processed")
+        logger.debug("All data in " + str(self._PATH) + " processed")
         logger.debug("Data-dictionary is of length : " + str(len(self.data)))
 
         logger.info("====END OF LOG==== \n")
@@ -154,12 +154,12 @@ class TSVReader:
 
     """
     Gets all specified txt filenames from a directory
-    Directory is set by global PATH variable
+    Directory is set by global self._PATH variable
     Returns: files as list of strings
     Requires: N/A
     """
     def get_files(self):
-        files = os.listdir(PATH)
+        files = os.listdir(self._PATH)
 
         cleaned = []
 
@@ -179,7 +179,7 @@ Class for writing files to tab-delimited format
 class TSVWriter:
     def __init__(self, data, path=PATH):
         #allow for path specification
-        PATH = path
+        self._PATH = path
 
         self.info("====START OF LOG====") #start of logging session
 
@@ -207,7 +207,7 @@ Class for loading files from .sql format
 class SQLReader:
     def __init__(self, server="localhost", db="*", username="root", psswd="", path=PATH):
         #allow for path specification
-        PATH = path
+        self._PATH = path
 
         #dict to store data based on <filename, df> pair 
         self.data = {}
@@ -241,12 +241,12 @@ class SQLReader:
 
     """
     Gets all specified sql filenames from a directory
-    Directory is set by global PATH variable
+    Directory is set by global self._PATH variable
     Returns: files as list of strings
     Requires: N/A
     """
     def get_files(self):
-        files = os.listdir(PATH)
+        files = os.listdir(self._PATH)
 
         cleaned = []
 
