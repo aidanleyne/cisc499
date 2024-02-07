@@ -34,11 +34,6 @@ class ImageGenerator:
 
         #get columns from passed dataframe
         self.data = dataframe.loc[:,["PRESS_TIME", "RELEASE_TIME"]]
-        
-        #@TODO: what did this line do originally?
-        #we should have 600 events that are a combo of a start-end pair
-        #confirm this with danel/ethan
-        #ed = events[:600]
 
         #compute the pixels for the image
         self.compute()
