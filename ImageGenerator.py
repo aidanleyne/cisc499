@@ -54,13 +54,20 @@ class ImageGenerator:
     Returns: N/A
     """
     def compute(self):
-        #ef = self.data[-600:]
+        press = self.data['PRESS_TIME'][-300:].tolist()
+        release = self.data['RELEASE_TIME'][-300:].tolist()
+        #loop through hz range
         for hz in range(20,501):
-            #for i in range(len(ef)):
+            #loop through last 300 entries
             for i in range(600):
-                #value = int(ef[i]) % (1000/hz)
-                value = (int(self.data['RELEASE_TIME'][i]) - int(self.data['PRESS_TIME'][i])) % (1000/hz)
-                self.image.putpixel(i, hz-20, int(value/(1000/hz)*255))
+                if i/2 % 2 == 0:
+                    #get value and graph press time
+                    value = int(press[int(i/2)]) % (1000/hz)
+                else:
+                    #get value and graph release time
+                    value = int(release[int(i/2)]) % (1000/hz)
+
+                self.image.putpixel((i, hz-20), int(value/(1000/hz)*255))
 
 
     """
