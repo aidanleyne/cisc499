@@ -19,7 +19,7 @@ Allows for specification of an export folder
 """
 class ImageGenerator:
     def __init__(self, path=PATH):
-        logging.info("====START LOG====\n")
+        logging.info("====START LOG====")
         PATH=path
 
     """
@@ -61,6 +61,14 @@ class ImageGenerator:
                 #value = int(ef[i]) % (1000/hz)
                 value = (int(self.data['RELEASE_TIME'][i]) - int(self.data['PRESS_TIME'][i])) % (1000/hz)
                 self.image.putpixel(i, hz-20, int(value/(1000/hz)*255))
+
+
+    """
+    This function terminates the ImageGenerator object.
+    Also closes the logger.
+    """
+    def close(self):
+        logger.info("====END LOG====\n")
 
 def main():
     if len(sys.argv) < 2:

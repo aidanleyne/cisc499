@@ -13,7 +13,6 @@ OUTPATH = 'images'
 
 if len(sys.argv) > 1:
     INPATH = sys.argv[1]
-    print("INPATH=", INPATH)
 
 elif len(sys.argv) > 2:
     INPATH = sys.argv[1]
@@ -26,3 +25,5 @@ data = reader.data
 
 for df in data:
     gen.generate_image(data[df], df)
+
+gen.close()
