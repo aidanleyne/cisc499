@@ -20,7 +20,7 @@ Allows for specification of an export folder
 class ImageGenerator:
     def __init__(self, path=PATH):
         logging.info("====START LOG====")
-        PATH=path
+        self._PATH=path
 
     """
     Generates and saves image based on pandas dataframe
@@ -44,7 +44,7 @@ class ImageGenerator:
         self.compute()
 
         #save image to destination
-        savename = str(PATH + '/' + str(filename) + '.png')
+        savename = str(self._PATH + '/' + str(filename) + '.png')
         self.image.save(savename)
         logger.debug("Image generated for data. Stored under : " + savename)
 
