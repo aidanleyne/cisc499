@@ -54,12 +54,13 @@ class ImageGenerator:
     Returns: N/A
     """
     def compute(self):
+        #ef = self.data[-600:]
         for hz in range(20,501):
             #for i in range(len(ef)):
             for i in range(600):
                 #value = int(ef[i]) % (1000/hz)
                 value = (int(self.data['RELEASE_TIME'][i]) - int(self.data['PRESS_TIME'][i])) % (1000/hz)
-                self.image.putpixel((i,hz-20), int(value/(1000/hz)*255))
+                self.image.putpixel(i, hz-20, int(value/(1000/hz)*255))
 
 def main():
     if len(sys.argv) < 2:
