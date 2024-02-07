@@ -4,7 +4,7 @@ import sys
 from PIL import Image
 
 ###LOGGING SETUP###
-logging.basicConfig(filename="dataLoader.log",
+logging.basicConfig(filename="ImageGenerator.log",
                     format='%(asctime)s : %(name)s : %(message)s',
                     filemode='a',
                     level=logging.DEBUG)
@@ -34,10 +34,14 @@ class ImageGenerator:
 
         #get columns from passed dataframe
         self.data = dataframe.loc[:,["PRESS_TIME", "RELEASE_TIME"]]
-        print(self.data)
+        
+        #@TODO: what did this line do originally?
+        #we should have 600 events that are a combo of a start-end pair
+        #confirm this with danel/ethan
+        #ed = events[:600]
 
         #compute the pixels for the image
-        #self.compute(events)
+        self.compute()
 
         #save image to destination
         savename = str(PATH + '/' + str(filename) + '.png')
@@ -49,19 +53,16 @@ class ImageGenerator:
     Requires: N/A
     Returns: N/A
     """
-    def compute(self, ef):
+    def compute(self):
         for hz in range(20,501):
-            for i in range(len(ef)):
-                value = int(ef[i]) % (1000/hz)
+            #for i in range(len(ef)):
+            for i in range(600):
+                #value = int(ef[i]) % (1000/hz)
+                value = (int(self.data['RELEASE_TIME'][i]) - int(self.data['PRESS_TIME'][i])) % (1000/hz)
                 self.image.putpixel((i,hz-20), int(value/(1000/hz)*255))
-   
-#@TODO: what did this line do originally?
-#we should have 600 events that are a combo of a start-end pair
-#confirm this with danel/ethan
-#ef = events[:600]
 
 def main():
-    if len(sys.argv) == 0:
+    if len(sys.argv) < 2:
         gen = ImageGenerator()
     else:
         gen = ImageGenerator(sys.argv[1])
