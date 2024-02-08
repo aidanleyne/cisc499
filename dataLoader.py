@@ -143,14 +143,26 @@ class TSVReader:
 
         for file in files:
             #read file into pandas df and append to dict
-            self.data[file] = pd.read_csv(str(self._PATH + '/' + file), header=0, delimiter='\t')
-            logger.debug("Read in file : " + str(file))
+            self.data[file] = self.load(file)
+            #logger.debug("Read in file : " + str(file))
 
-        logger.debug("All data in " + str(self._PATH) + " processed")
+        #logger.debug("All data in " + str(self._PATH) + " processed")
         logger.debug("Data-dictionary is of length : " + str(len(self.data)))
 
         logger.info("====END OF LOG==== \n")
         return
+    
+    """
+    Loads a file into a dataframe given a filename
+    Requires: filename
+    Returns: Pandas dataframe
+    """
+    def load(self, filename):
+        try:
+            return pd.read_csv(str(self._PATH + '/' + filename), header=0, delimiter='\t')
+        except:
+            logger.error("Could not parse file : " + filename)
+            return None
 
     """
     Gets all specified txt filenames from a directory
@@ -166,7 +178,7 @@ class TSVReader:
         for file in files:
             if file.endswith('.txt'):
                 cleaned.append(file)
-                logger.debug("File retained : " + str(file))
+                #logger.debug("File retained : " + str(file))
 
             else:
                 logger.debug("Incorrect file type removed. File : " + str(file))
