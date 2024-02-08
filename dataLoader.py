@@ -153,6 +153,9 @@ Class for reading files from tab-delimited format
         return"""
 
 class TSVReader:
+    def __init__(self):
+        return
+    
     def load(path, filename):
         return pd.read_csv(str(path + '/' + filename), header=0, delimiter='\t')
 
