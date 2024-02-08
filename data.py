@@ -2,8 +2,8 @@ from dataLoader import TSVReader
 import sys
 import os
 
-def get_files(self):
-    files = os.listdir(self._PATH)
+def get_files():
+    files = os.listdir(sys.argv[1])
 
     cleaned = []
 
