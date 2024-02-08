@@ -64,7 +64,6 @@ class ImageGenerator:
 
                 self.image.putpixel((i, hz-20), int(value/(1000/hz)*255))
 
-
     """
     This function terminates the ImageGenerator object.
     Also closes the logger.
