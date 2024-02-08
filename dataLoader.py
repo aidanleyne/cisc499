@@ -129,7 +129,7 @@ class CSVWriter:
 """
 Class for reading files from tab-delimited format
 """
-class TSVReader:
+"""class TSVReader:
     def __init__(self, path=PATH):
         #allow for path specification
         self._PATH = path
@@ -150,7 +150,11 @@ class TSVReader:
         logger.debug("Data-dictionary is of length : " + str(len(self.data)))
 
         logger.info("====END OF LOG==== \n")
-        return
+        return"""
+
+class TSVReader:
+    def __init__(self, path, filename):
+        return pd.read_csv(str(path + '/' + filename), header=0, delimiter='\t')
 
     """
     Gets all specified txt filenames from a directory
