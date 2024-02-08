@@ -157,17 +157,21 @@ class TSVReader:
         return
     
     def load(self, path, filename):
-        return pd.read_csv(str(path + '/' + filename), header=0, delimiter='\t', dtype={
-            'PARTICIPANT_ID': 'string',
-            'TEST_SECTION_ID': 'int32',
-            'SENTENCE': 'string',
-            'USER INPUT': 'string',
-            'KEYSTROKE_ID': 'int32',
-            'PRESS_TIME': 'int32',
-            'RELEASE_TIME': 'int32',
-            'LETTER': 'string',
-            'KEYCODE': 'int16'
-            })
+        try:
+            return pd.read_csv(str(path + '/' + filename), header=0, delimiter='\t', dtype={
+                'PARTICIPANT_ID': 'string',
+                'TEST_SECTION_ID': 'int32',
+                'SENTENCE': 'string',
+                'USER INPUT': 'string',
+                'KEYSTROKE_ID': 'int32',
+                'PRESS_TIME': 'int32',
+                'RELEASE_TIME': 'int32',
+                'LETTER': 'string',
+                'KEYCODE': 'int16'
+                })
+        except:
+            logger.error("Could not parse file : " + filename)
+            return None
 
     """
     Gets all specified txt filenames from a directory
