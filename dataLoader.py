@@ -159,17 +159,7 @@ class TSVReader:
     """
     def load(self, filename):
         try:
-            return pd.read_csv(str(self._PATH + '/' + filename), header=0, delimiter='\t', dtype={
-                'PARTICIPANT_ID': 'string',
-                'TEST_SECTION_ID': 'int32',
-                'SENTENCE': 'string',
-                'USER INPUT': 'string',
-                'KEYSTROKE_ID': 'int32',
-                'PRESS_TIME': 'int32',
-                'RELEASE_TIME': 'int32',
-                'LETTER': 'string',
-                'KEYCODE': 'int16'
-                })
+            return pd.read_csv(str(self._PATH + '/' + filename), header=0, delimiter='\t')
         except:
             logger.error("Could not parse file : " + filename)
             return None
