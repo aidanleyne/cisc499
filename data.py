@@ -17,7 +17,8 @@ def get_files():
 data = {}
 
 for file in get_files():
-    data[file] = TSVReader(sys.argv[1], file)
+    reader = TSVReader()
+    data[file] = reader.load(sys.argv[1], file)
 
 print("completed")
 
