@@ -4,6 +4,7 @@ import logging
 import csv
 import pandas as pd
 import mysql.connector as sql
+import tqdm as tq
 
 ###LOGGING SETUP###
 logging.basicConfig(filename="dataLoader.log",
@@ -141,7 +142,8 @@ class TSVReader:
         files = self.get_files()
         logger.debug("Begining Import on " + str(len(files)) + " files...")
 
-        for file in files:
+        for i in tq(range(len(files))):
+            file = files[i]
             #read file into pandas df and append to dict
             self.data[file] = self.load(file)
             #logger.debug("Read in file : " + str(file))
@@ -177,11 +179,14 @@ class TSVReader:
 
         for file in files:
             if file.endswith('.txt'):
-                cleaned.append(file)
+                cleaned.append(str(file))
                 #logger.debug("File retained : " + str(file))
 
             else:
                 logger.debug("Incorrect file type removed. File : " + str(file))
+
+        #remove the array that holds the file names for mem management
+        del files
             
         return cleaned
 
