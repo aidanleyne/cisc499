@@ -145,7 +145,7 @@ class TSVReader:
             file = files[i]
             #read file into pandas df and append to dict
             fdata = self.load(file)
-            if fdata != None:
+            if fdata != -1:
                 self.data[file] = fdata
             #logger.debug("Read in file : " + str(file))
                 
@@ -168,7 +168,7 @@ class TSVReader:
             return pd.read_csv(str(self._PATH + '/' + filename), header=0, delimiter='\t')
         except:
             logger.error("Could not parse file : " + filename)
-            return None
+            return -1
 
     """
     Gets all specified txt filenames from a directory
