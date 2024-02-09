@@ -21,9 +21,7 @@ elif len(sys.argv) > 2:
 reader = TSVReader(INPATH)
 gen = ImageGenerator(OUTPATH)
 
-data = reader.data
-
-for df in data:
-    gen.generate_image(data[df], df)
+for df in reader.data:
+    gen.generate_image(reader.data[df], df)
 
 gen.close()
