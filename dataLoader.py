@@ -165,17 +165,7 @@ class TSVReader:
     """
     def load(self, filename):
         try:
-            return pd.read_csv(str(self._PATH + '/' + filename), header=0, delimiter='\t', dtype={
-                'PARTICIPANT_ID': 'int32',
-                'TEST_SECTION_ID': 'int32',
-                'SENTENCE': 'string',
-                'USER_INPUT': 'string',
-                'KEYSTROKE_ID': 'int64',
-                'PRESS_TIME': 'int64',
-                'RELEASE_TIME': 'int64',
-                'LETTER': 'string',
-                'KEYCODE': 'int16'
-            })
+            return pd.read_csv(str(self._PATH + '/' + filename), header=0, delimiter='\t')
         except:
             logger.error("Could not parse file : " + filename)
             return pd.DataFrame()
@@ -202,7 +192,7 @@ class TSVReader:
         #remove the array that holds the file names for mem management
         del files
             
-        return cleaned
+        return cleaned[:25000]
 
 """
 Class for writing files to tab-delimited format
