@@ -165,8 +165,7 @@ class TSVReader:
     """
     def load(self, filename):
         try:
-            return pd.read_csv(str(self._PATH + '/' + filename), header=0, delimiter='\t', 
-                               low_memeory=False, dtype={
+            return pd.read_csv(str(self._PATH + '/' + filename), header=0, delimiter='\t', dtype={
                 'PARTICIPANT_ID': 'int32',
                 'TEST_SECTION_ID': 'int32',
                 'SENTENCE': 'string',
