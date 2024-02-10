@@ -132,16 +132,34 @@ class CSVWriter:
 Class for reading files from tab-delimited format
 """
 class TSVReader:
-    def __init__(self, path=PATH):
+    def __init__(self, path=PATH, count=-1):
         #allow for path specification
         self._PATH = path
 
         self.data = {}
         logger.debug("====START OF LOG====") #start of logging session
-        files = self.get_files()
+        
+        #build dictionary
+        self.build(count)
 
+        logger.debug("Data-dictionary is of length : " + str(len(self.data)))
+        logger.info("====END OF LOG==== \n")
+        return
+    
+    """
+    Logic for building the dataframe based on files provided
+    Requires: N/A
+    Returns: N/A
+    """
+    def build(self, count):
         #get number of files through one call and can be reused
-        lfiles = len(files)
+        files = self.get_files()
+        if count > -1:
+            lfiles = len(files)
+            del count
+        else:
+            lfiles = count
+            del count
         logger.debug("Begining Import on " + str(lfiles) + " files...")
 
         #find number of 25k file chunks
@@ -161,7 +179,7 @@ class TSVReader:
                 #get remaining files
                 sfiles = files[(-1 * (lfiles % 25000)):]
 
-            for i in tq(range(len(sfiles)), position=1, leave=True):
+            for i in tq(range(len(sfiles)), position=1, leave=False):
                 file = sfiles[i]
                 #read file into pandas df and append to dict
                 fdata = self.load(file)
@@ -180,12 +198,6 @@ class TSVReader:
 
             #dispose of sdata to free up memory
             del sdata
-
-        #logger.debug("All data in " + str(self._PATH) + " processed")
-        logger.debug("Data-dictionary is of length : " + str(len(self.data)))
-
-        logger.info("====END OF LOG==== \n")
-        return
     
     """
     Loads a file into a dataframe given a filename

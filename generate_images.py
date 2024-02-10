@@ -12,15 +12,26 @@ INPATH = 'data'
 #set a default path for the images
 OUTPATH = 'images'
 
-if len(sys.argv) > 1:
-    INPATH = sys.argv[1]
+#set a default number of files to count-in
+count = -1
 
-elif len(sys.argv) > 2:
+if len(sys.argv) > 2:
     INPATH = sys.argv[1]
     OUTPATH = sys.argv[2]
 
+if len(sys.argv) > 3:
+    INPATH = sys.argv[1]
+    OUTPATH = sys.argv[2]
+    count = sys.argv[3]
+
+else:
+    print("Requires at least 2 arguments: INPATH, OUTPATH; Optional arguments: Count")
+
 print("*** Loading Files... ***")
-reader = TSVReader(INPATH)
+if count > 0:
+    reader = TSVReader(INPATH, count)
+else:
+    reader = TSVReader(INPATH)
 gen = ImageGenerator(OUTPATH)
 
 print("*** Loading Files... ***")
