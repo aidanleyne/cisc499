@@ -169,6 +169,9 @@ class TSVReader:
                 #free up memory from read-data
                 del fdata
 
+            #free up memory instead of just being overwritten
+            del sfiles
+
         #logger.debug("All data in " + str(self._PATH) + " processed")
         logger.debug("Data-dictionary is of length : " + str(len(self.data)))
 
