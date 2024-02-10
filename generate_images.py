@@ -22,7 +22,10 @@ if len(sys.argv) > 2:
 if len(sys.argv) > 3:
     INPATH = sys.argv[1]
     OUTPATH = sys.argv[2]
-    count = sys.argv[3]
+    try:
+        count = int(sys.argv[3])
+    except:
+        print("Not a valid number of files. Will load all possible")
 
 else:
     print("Requires at least 2 arguments: INPATH, OUTPATH; Optional arguments: Count")
