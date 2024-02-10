@@ -1,9 +1,11 @@
 import os
 import sys
+import math
 import logging
 import csv
 import pandas as pd
 import mysql.connector as sql
+from tqdm import tqdm as tq
 
 ###LOGGING SETUP###
 logging.basicConfig(filename="dataLoader.log",
@@ -130,27 +132,77 @@ class CSVWriter:
 Class for reading files from tab-delimited format
 """
 class TSVReader:
-    def __init__(self, path=PATH):
+    def __init__(self, path=PATH, count=-1):
         #allow for path specification
         self._PATH = path
 
         self.data = {}
-
         logger.debug("====START OF LOG====") #start of logging session
+        
+        #build dictionary
+        self.build(count)
 
-        files = self.get_files()
-        logger.debug("Begining Import on " + str(len(files)) + " files...")
-
-        for file in files:
-            #read file into pandas df and append to dict
-            self.data[file] = self.load(file)
-            #logger.debug("Read in file : " + str(file))
-
-        #logger.debug("All data in " + str(self._PATH) + " processed")
         logger.debug("Data-dictionary is of length : " + str(len(self.data)))
-
         logger.info("====END OF LOG==== \n")
         return
+    
+    """
+    Logic for building the dataframe based on files provided
+    Requires: N/A
+    Returns: N/A
+    """
+    def build(self, count):
+        #get number of files through one call and can be reused
+        files = self.get_files()
+        if count == -1:
+            lfiles = len(files)
+            del count
+        else:
+            lfiles = count
+            del count
+        logger.debug("Begining Import on " + str(lfiles) + " files...")
+
+        #establish chunk size. shrink if one chunk. Default: 25k
+        chunk_size = 25000
+        if lfiles < chunk_size:
+            chunk_size = lfiles
+
+        #find number of 25k file chunks
+        chunks = math.ceil(lfiles/chunk_size)
+
+        for c in tq(range(chunks), position=0):
+            print(str('\t*** Loading chunk ' + str(c+1) + ' of ' + str(chunks) + '... ***'))
+            
+            #create sub-dictionary
+            sdata = {}
+
+            #create sublist of files
+            if c < chunks:
+                #get 25k chunk of files
+                sfiles = files[chunk_size*c:chunk_size*(c+1)]
+            else:
+                #get remaining files
+                sfiles = files[(-1 * (lfiles % chunk_size)):]
+
+            for i in tq(range(len(sfiles)), position=1, leave=False):
+                file = sfiles[i]
+                #read file into pandas df and append to dict
+                fdata = self.load(file)
+                if not fdata.empty:
+                    sdata[file] = fdata
+                #logger.debug("Read in file : " + str(file))
+                    
+                #free up memory from read-data
+                del fdata
+
+            #free up memory instead of just being overwritten
+            del sfiles
+
+            #merge sdata into main dictionary
+            self.data = {**self.data, **sdata}
+
+            #dispose of sdata to free up memory
+            del sdata
     
     """
     Loads a file into a dataframe given a filename
@@ -162,7 +214,7 @@ class TSVReader:
             return pd.read_csv(str(self._PATH + '/' + filename), header=0, delimiter='\t')
         except:
             logger.error("Could not parse file : " + filename)
-            return None
+            return pd.DataFrame()
 
     """
     Gets all specified txt filenames from a directory
@@ -177,11 +229,14 @@ class TSVReader:
 
         for file in files:
             if file.endswith('.txt'):
-                cleaned.append(file)
+                cleaned.append(str(file))
                 #logger.debug("File retained : " + str(file))
 
             else:
                 logger.debug("Incorrect file type removed. File : " + str(file))
+
+        #remove the array that holds the file names for mem management
+        del files
             
         return cleaned
 
