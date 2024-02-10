@@ -35,6 +35,7 @@ if count > 0:
     reader = TSVReader(INPATH, count)
 else:
     reader = TSVReader(INPATH)
+    
 gen = ImageGenerator(OUTPATH)
 
 print("*** Loading Files... ***")

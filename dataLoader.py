@@ -154,7 +154,7 @@ class TSVReader:
     def build(self, count):
         #get number of files through one call and can be reused
         files = self.get_files()
-        if count > -1:
+        if count == -1:
             lfiles = len(files)
             del count
         else:
