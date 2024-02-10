@@ -140,7 +140,7 @@ class TSVReader:
         logger.debug("====START OF LOG====") #start of logging session
         files = self.get_files()
 
-        #get number of files
+        #get number of files through one call and can be reused
         lfiles = len(files)
         logger.debug("Begining Import on " + str(lfiles) + " files...")
 
@@ -150,6 +150,9 @@ class TSVReader:
         for c in tq(range(chunks), position=0):
             print(str('\t*** Loading chunk ' + str(c+1) + ' of ' + str(chunks) + '... ***'))
             
+            #create sub-dictionary
+            sdata = {}
+
             #create sublist of files
             if c < chunks:
                 #get 25k chunk of files
@@ -163,7 +166,7 @@ class TSVReader:
                 #read file into pandas df and append to dict
                 fdata = self.load(file)
                 if not fdata.empty:
-                    self.data[file] = fdata
+                    self.sdata[file] = fdata
                 #logger.debug("Read in file : " + str(file))
                     
                 #free up memory from read-data
@@ -171,6 +174,12 @@ class TSVReader:
 
             #free up memory instead of just being overwritten
             del sfiles
+
+            #merge sdata into main dictionary
+            self.data = {**self.data, **sdata}
+
+            #dispose of sdata to free up memory
+            del sdata
 
         #logger.debug("All data in " + str(self._PATH) + " processed")
         logger.debug("Data-dictionary is of length : " + str(len(self.data)))
