@@ -25,6 +25,6 @@ gen = ImageGenerator(OUTPATH)
 
 print("*** Loading Files... ***")
 for filename, df in tq(reader.data.items()):
-    gen.generate_image(filename, df)
+    gen.generate_image(df, filename)
 
 gen.close()
