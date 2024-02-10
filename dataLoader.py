@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 import logging
 import csv
 import pandas as pd
@@ -137,20 +138,38 @@ class TSVReader:
 
         self.data = {}
         logger.debug("====START OF LOG====") #start of logging session
-
         files = self.get_files()
-        logger.debug("Begining Import on " + str(len(files)) + " files...")
 
-        for i in tq(range(len(files))):
-            file = files[i]
-            #read file into pandas df and append to dict
-            fdata = self.load(file)
-            if not fdata.empty:
-                self.data[file] = fdata
-            #logger.debug("Read in file : " + str(file))
-                
-            #free up memory from read-data
-            del fdata
+        #get number of files
+        lfiles = len(files)
+        logger.debug("Begining Import on " + str(lfiles) + " files...")
+
+        
+
+        #find number of 25k file chunks
+        chunks = math.ceil(lfiles/25000)
+
+        for c in tq(range(chunks)):
+            print(str('\t*** Loading chunk ' + str(c+1), ' of ' + str(chunks) + '... ***'))
+            
+            #create sublist of files
+            if c < chunks:
+                #get 25k chunk of files
+                sfiles = files[25000*c:25000*(c+1)]
+            else:
+                #get remaining files
+                sfiles = files[(-1 * (lfiles % 25000)):]
+
+            for i in tq(range(len(sfiles))):
+                file = sfiles[i + (25000*c)]
+                #read file into pandas df and append to dict
+                fdata = self.load(file)
+                if not fdata.empty:
+                    self.data[file] = fdata
+                #logger.debug("Read in file : " + str(file))
+                    
+                #free up memory from read-data
+                del fdata
 
         #logger.debug("All data in " + str(self._PATH) + " processed")
         logger.debug("Data-dictionary is of length : " + str(len(self.data)))
@@ -192,7 +211,7 @@ class TSVReader:
         #remove the array that holds the file names for mem management
         del files
             
-        return cleaned[:25000]
+        return cleaned
 
 """
 Class for writing files to tab-delimited format
