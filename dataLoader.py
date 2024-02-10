@@ -144,12 +144,10 @@ class TSVReader:
         lfiles = len(files)
         logger.debug("Begining Import on " + str(lfiles) + " files...")
 
-        
-
         #find number of 25k file chunks
         chunks = math.ceil(lfiles/25000)
 
-        for c in tq(range(chunks)):
+        for c in tq(range(chunks), position=0):
             print(str('\t*** Loading chunk ' + str(c+1) + ' of ' + str(chunks) + '... ***'))
             
             #create sublist of files
@@ -160,8 +158,8 @@ class TSVReader:
                 #get remaining files
                 sfiles = files[(-1 * (lfiles % 25000)):]
 
-            for i in tq(range(len(sfiles))):
-                file = sfiles[i + (25000*c)]
+            for i in tq(range(len(sfiles)), position=1, leave=True):
+                file = sfiles[i]
                 #read file into pandas df and append to dict
                 fdata = self.load(file)
                 if not fdata.empty:
