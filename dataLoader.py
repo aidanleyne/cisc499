@@ -165,7 +165,7 @@ class TSVReader:
         #establish chunk size. shrink if one chunk. Default: 25k
         chunk_size = 25000
         if lfiles < chunk_size:
-            chunk_size = count
+            chunk_size = lfiles
 
         #find number of 25k file chunks
         chunks = math.ceil(lfiles/chunk_size)
