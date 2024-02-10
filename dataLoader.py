@@ -166,7 +166,7 @@ class TSVReader:
                 #read file into pandas df and append to dict
                 fdata = self.load(file)
                 if not fdata.empty:
-                    self.sdata[file] = fdata
+                    sdata[file] = fdata
                 #logger.debug("Read in file : " + str(file))
                     
                 #free up memory from read-data
