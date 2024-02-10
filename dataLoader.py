@@ -162,8 +162,13 @@ class TSVReader:
             del count
         logger.debug("Begining Import on " + str(lfiles) + " files...")
 
+        #establish chunk size. shrink if one chunk. Default: 25k
+        chunk_size = 25000
+        if count < chunk_size:
+            chunk_size = count
+
         #find number of 25k file chunks
-        chunks = math.ceil(lfiles/25000)
+        chunks = math.ceil(lfiles/chunk_size)
 
         for c in tq(range(chunks), position=0):
             print(str('\t*** Loading chunk ' + str(c+1) + ' of ' + str(chunks) + '... ***'))
@@ -174,10 +179,10 @@ class TSVReader:
             #create sublist of files
             if c < chunks:
                 #get 25k chunk of files
-                sfiles = files[25000*c:25000*(c+1)]
+                sfiles = files[chunk_size*c:chunk_size*(c+1)]
             else:
                 #get remaining files
-                sfiles = files[(-1 * (lfiles % 25000)):]
+                sfiles = files[(-1 * (lfiles % chunk_size)):]
 
             for i in tq(range(len(sfiles)), position=1, leave=False):
                 file = sfiles[i]
