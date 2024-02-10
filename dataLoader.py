@@ -150,7 +150,7 @@ class TSVReader:
         chunks = math.ceil(lfiles/25000)
 
         for c in tq(range(chunks)):
-            print(str('\t*** Loading chunk ' + str(c+1), ' of ' + str(chunks) + '... ***'))
+            print(str('\t*** Loading chunk ' + str(c+1) + ' of ' + str(chunks) + '... ***'))
             
             #create sublist of files
             if c < chunks:
