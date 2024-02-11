@@ -216,10 +216,10 @@ class SQLReader():
             logger.error("Issue connecting to database")
             return
 
-        tables = get_tables()
+        tables = self.get_tables()
 
-        for tablename in get_tables():
-            self.data[tablename] = get_data(tablename)
+        for tablename in tables:
+            self.data[tablename] = self.get_data(tablename)
 
         return    
         
