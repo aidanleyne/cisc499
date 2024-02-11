@@ -1,10 +1,12 @@
 import os
 import sys
+import math
 import logging
 import csv
 import pandas as pd
 import warnings
 import mysql.connector as sql
+from tqdm import tqdm as tq
 
 ###LOGGING SETUP###
 logging.basicConfig(filename="dataLoader.log",
@@ -13,7 +15,7 @@ logging.basicConfig(filename="dataLoader.log",
                     level=logging.DEBUG)
 logger = logging.getLogger()
 
-###PATH TO DATA####
+###self._PATH TO DATA####
 PATH = 'data'
 
 ###SUPRESS WARNINGS###
@@ -25,7 +27,7 @@ Class for loading files from .csv format
 class CSVReader:
     def __init__(self, path=PATH, autoload=True):
         #allow for path specification
-        PATH = path
+        self._PATH = path
 
         #dict to store data based on <filename, df> pair 
         self.data = {}
@@ -63,7 +65,7 @@ class CSVReader:
     Requires: N/A
     """
     def get_files(self):
-        files = os.listdir(PATH)
+        files = os.listdir(self._PATH)
 
         cleaned = []
 
@@ -83,7 +85,7 @@ class CSVReader:
     Requires: filename (as a csv) 
     """
     def get_headers(self, filename):
-        with open(str(PATH + '/' + filename), newline='\n') as file:
+        with open(str(self._PATH + '/' + filename), newline='\n') as file:
             reader = csv.reader(file, delimiter=',')
             headers = []
             for row in reader:
@@ -100,7 +102,7 @@ class CSVReader:
     Requires: filename - csv file, headers - string list of column headers
     """
     def get_data(self, filename, headers):
-        return pd.read_csv(str(PATH + '/' + filename), names=headers, encoding='latin1', quotechar='"')
+        return pd.read_csv(str(self._PATH + '/' + filename), names=headers, encoding='latin1', quotechar='"')
 
 """
 Class for writing files to .csv format
@@ -108,7 +110,7 @@ Class for writing files to .csv format
 class CSVWriter:
     def __init__(self, data, path=PATH):
         #allow for path specification
-        PATH = path
+        self._PATH = path
 
         self.info("====START OF LOG====") #start of logging session
 
@@ -134,46 +136,111 @@ class CSVWriter:
 Class for reading files from tab-delimited format
 """
 class TSVReader:
-    def __init__(self, path=PATH):
+    def __init__(self, path=PATH, count=-1):
         #allow for path specification
-        PATH = path
+        self._PATH = path
 
         self.data = {}
-
         logger.debug("====START OF LOG====") #start of logging session
+        
+        #build dictionary
+        self.build(count)
 
-        files = self.get_files()
-        logger.debug("Begining Import on " + str(len(files)) + " files...")
-
-        for file in files:
-            #read file into pandas df and append to dict
-            self.data[file] = pd.read_csv(str(PATH + '/' + file), header=0, delimiter='\t')
-            logger.debug("Read in file : " + str(file))
-
-        logger.debug("All data in " + str(PATH) + " processed")
         logger.debug("Data-dictionary is of length : " + str(len(self.data)))
-
         logger.info("====END OF LOG==== \n")
         return
+    
+    """
+    Logic for building the dataframe based on files provided
+    Requires: N/A
+    Returns: N/A
+    """
+    def build(self, count):
+        #get number of files through one call and can be reused
+        files = self.get_files()
+        if count == -1:
+            lfiles = len(files)
+            del count
+        else:
+            lfiles = count
+            del count
+        logger.debug("Begining Import on " + str(lfiles) + " files...")
+
+        #establish chunk size. shrink if one chunk. Default: 25k
+        chunk_size = 25000
+        if lfiles < chunk_size:
+            chunk_size = lfiles
+
+        #find number of 25k file chunks
+        chunks = math.ceil(lfiles/chunk_size)
+
+        for c in tq(range(chunks), position=0):
+            print(str('\t*** Loading chunk ' + str(c+1) + ' of ' + str(chunks) + '... ***'))
+            
+            #create sub-dictionary
+            sdata = {}
+
+            #create sublist of files
+            if c < chunks:
+                #get 25k chunk of files
+                sfiles = files[chunk_size*c:chunk_size*(c+1)]
+            else:
+                #get remaining files
+                sfiles = files[(-1 * (lfiles % chunk_size)):]
+
+            for i in tq(range(len(sfiles)), position=1, leave=False):
+                file = sfiles[i]
+                #read file into pandas df and append to dict
+                fdata = self.load(file)
+                if not fdata.empty:
+                    sdata[file] = fdata
+                #logger.debug("Read in file : " + str(file))
+                    
+                #free up memory from read-data
+                del fdata
+
+            #free up memory instead of just being overwritten
+            del sfiles
+
+            #merge sdata into main dictionary
+            self.data = {**self.data, **sdata}
+
+            #dispose of sdata to free up memory
+            del sdata
+    
+    """
+    Loads a file into a dataframe given a filename
+    Requires: filename
+    Returns: Pandas dataframe
+    """
+    def load(self, filename):
+        try:
+            return pd.read_csv(str(self._PATH + '/' + filename), header=0, delimiter='\t')
+        except:
+            logger.error("Could not parse file : " + filename)
+            return pd.DataFrame()
 
     """
     Gets all specified txt filenames from a directory
-    Directory is set by global PATH variable
+    Directory is set by global self._PATH variable
     Returns: files as list of strings
     Requires: N/A
     """
     def get_files(self):
-        files = os.listdir(PATH)
+        files = os.listdir(self._PATH)
 
         cleaned = []
 
         for file in files:
             if file.endswith('.txt'):
-                cleaned.append(file)
-                logger.debug("File retained : " + str(file))
+                cleaned.append(str(file))
+                #logger.debug("File retained : " + str(file))
 
             else:
                 logger.debug("Incorrect file type removed. File : " + str(file))
+
+        #remove the array that holds the file names for mem management
+        del files
             
         return cleaned
 
@@ -183,7 +250,7 @@ Class for writing files to tab-delimited format
 class TSVWriter:
     def __init__(self, data, path=PATH):
         #allow for path specification
-        PATH = path
+        self._PATH = path
 
         self.info("====START OF LOG====") #start of logging session
 
@@ -329,14 +396,15 @@ Class for laoding .sql file to sql database
 class SQLLoader:
     def __init__(self):
         return
-
+    
+    def write(self):
+        return
+    
 def main():
     if len(sys.argv) == 0:
         tsv = TSVReader()
     else:
         tsv = TSVReader(sys.argv[1])
-
-    return
 
 if __name__ == "__main__":
     main()
