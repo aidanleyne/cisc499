@@ -206,7 +206,27 @@ Class for loading files from .sql format
 """
 class SQLReader():
     def __init__(self):
-        return
+        def __init__(self, server="localhost", db="mysql", username="root", psswd=""):
+            try:
+                self.db = sql.connect(user=username, password=psswd, host=server, database=db)
+                self.cursor = db.cursor()
+                logger.info("Connected to database : " + str(db) + " on server : " + str(server))
+            except:
+                logger.error("Issue connecting to database")
+                return
+
+            tables = get_tables()
+
+            for tablename in get_tables():
+                self.data[tablename] = read(tablename)
+
+            return
+
+        def get_tables(self):
+            self.cursor.execute("SHOW TABLES;")
+            
+            
+
 
 """
 Class for writing files to sql table
@@ -260,12 +280,7 @@ class SQLWriter:
         return cleaned
 
     """
-    Reads from existing db and adds the contents to data
-    Requires: 
-    Returns: 
     """
-    def read_data(self):
-        return
 
 def main():
     if len(sys.argv) == 0:
