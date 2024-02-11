@@ -222,24 +222,25 @@ class SQLReader():
         for tablename in tables:
             self.data[tablename] = self.get_data(tablename)
 
-        return    
+        logger.debug("All files loaded and appened to dict as <tablename, dataframe>...")
+        return
         
-        """
-        Returns list of tablenames in database
-        Requires: None
-        Returns: list of tablenames
-        """
-        def get_tables(self):
-            self.cursor.execute("SHOW TABLES;")
-            return self.cursor.fetchall()
-        
-        """
-        Returns SQL table as pandas df
-        Requires: tablename (str)
-        Returns: pandas df
-        """
-        def get_data(self, tablename):
-            return pd.read_sql(str('SELECT * FROM ' + str(tablename)), con=self.db)
+    """
+    Returns list of tablenames in database
+    Requires: None
+    Returns: list of tablenames
+    """
+    def get_tables(self):
+        self.cursor.execute("SHOW TABLES;")
+        return self.cursor.fetchall()
+    
+    """
+    Returns SQL table as pandas df
+    Requires: tablename (str)
+    Returns: pandas df
+    """
+    def get_data(self, tablename):
+        return pd.read_sql(str('SELECT * FROM ' + str(tablename)), con=self.db)
             
 
 
