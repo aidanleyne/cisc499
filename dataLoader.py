@@ -210,7 +210,7 @@ class SQLReader():
     
         try:
             self.db = sql.connect(user=username, password=psswd, host=server, database=db)
-            self.cursor = db.cursor()
+            self.cursor = self.db.cursor()
             logger.info("Connected to database : " + str(db) + " on server : " + str(server))
         except:
             logger.exception("Issue connecting to database")
@@ -242,7 +242,6 @@ class SQLReader():
     def get_data(self, tablename):
         return pd.read_sql(str('SELECT * FROM ' + str(tablename)), con=self.db)
             
-
 
 """
 Class for writing files to sql table
