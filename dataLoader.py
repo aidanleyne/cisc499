@@ -207,6 +207,8 @@ Class for loading files from .sql format
 class SQLReader():
     def __init__(self):
         def __init__(self, server="localhost", db="mysql", username="root", psswd=""):
+            self.data = {}
+        
             try:
                 self.db = sql.connect(user=username, password=psswd, host=server, database=db)
                 self.cursor = db.cursor()
@@ -218,13 +220,26 @@ class SQLReader():
             tables = get_tables()
 
             for tablename in get_tables():
-                self.data[tablename] = read(tablename)
+                self.data[tablename] = get_data(tablename)
 
             return
-
+        
+        """
+        Returns list of tablenames in database
+        Requires: None
+        Returns: list of tablenames
+        """
         def get_tables(self):
             self.cursor.execute("SHOW TABLES;")
-            
+            return self.cursor.fetchall()
+        
+        """
+        Returns SQL table as pandas df
+        Requires: tablename (str)
+        Returns: pandas df
+        """
+        def get_data(self, tablename):
+            return pd.read_sql(str('SELECT * FROM ' + str(tablename)), con=self.db)
             
 
 
