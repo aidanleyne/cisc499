@@ -4,7 +4,7 @@ Generates images for all desktop data files in the /data folder.
 import sys
 from tqdm import tqdm as tq
 from ImageGenerator import ImageGenerator
-from dataLoader import TSVReader
+from DataLoader import TSVReader
 
 #set a default path for the data
 INPATH = 'data'
