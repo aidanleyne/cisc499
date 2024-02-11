@@ -7,7 +7,7 @@ from PIL import Image
 logging.basicConfig(filename="ImageGenerator.log",
                     format='%(asctime)s : %(name)s : %(message)s',
                     filemode='a',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 logger = logging.getLogger()
 
 ###DEFAULT PATH###
@@ -33,10 +33,18 @@ class ImageGenerator:
         self.image = Image.new('L', (600, 481))
 
         #get columns from passed dataframe
-        self.data = dataframe.loc[:,["PRESS_TIME", "RELEASE_TIME"]]
+        try:
+            self.data = dataframe.loc[:,["PRESS_TIME", "RELEASE_TIME"]]
+        except:
+            logger.exception("Could not caputre columns for file : " + str(filename) + " --- skipping...")
+            return
 
         #compute the pixels for the image
-        self.compute()
+        try:
+            self.compute()
+        except:
+            logger.exception("Could not compute image for file : " + str(filename) + " --- skipping...")
+            return
 
         #save image to destination
         savename = str(self._PATH + '/' + str(filename) + '.png')
