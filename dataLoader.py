@@ -240,7 +240,7 @@ class SQLReader():
     Returns: pandas df
     """
     def get_data(self, tablename):
-        return pd.read_sql(str('SELECT * FROM ' + str(tablename)), con=self.db)
+        return pd.read_sql(str('SELECT * FROM ' + str(tablename)) + ';', con=self.db)
             
 
 """
