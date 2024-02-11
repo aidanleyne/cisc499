@@ -205,24 +205,23 @@ class TSVWriter:
 Class for loading files from .sql format
 """
 class SQLReader():
-    def __init__(self):
-        def __init__(self, server="localhost", db="mysql", username="root", psswd=""):
-            self.data = {}
-        
-            try:
-                self.db = sql.connect(user=username, password=psswd, host=server, database=db)
-                self.cursor = db.cursor()
-                logger.info("Connected to database : " + str(db) + " on server : " + str(server))
-            except:
-                logger.error("Issue connecting to database")
-                return
-
-            tables = get_tables()
-
-            for tablename in get_tables():
-                self.data[tablename] = get_data(tablename)
-
+    def __init__(self, server="localhost", db="mysql", username="root", psswd=""):
+        self.data = {}
+    
+        try:
+            self.db = sql.connect(user=username, password=psswd, host=server, database=db)
+            self.cursor = db.cursor()
+            logger.info("Connected to database : " + str(db) + " on server : " + str(server))
+        except:
+            logger.error("Issue connecting to database")
             return
+
+        tables = get_tables()
+
+        for tablename in get_tables():
+            self.data[tablename] = get_data(tablename)
+
+        return    
         
         """
         Returns list of tablenames in database
