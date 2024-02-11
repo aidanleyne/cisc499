@@ -217,6 +217,7 @@ class SQLReader():
             return
 
         tables = self.get_tables()
+        print(tables)
 
         for tablename in tables:
             self.data[tablename] = self.get_data(tablename)
