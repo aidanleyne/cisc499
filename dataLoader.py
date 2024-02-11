@@ -213,7 +213,7 @@ class SQLReader():
             self.cursor = db.cursor()
             logger.info("Connected to database : " + str(db) + " on server : " + str(server))
         except:
-            logger.error("Issue connecting to database")
+            logger.exception("Issue connecting to database")
             return
 
         tables = self.get_tables()
