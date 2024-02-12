@@ -170,9 +170,10 @@ class TSVReader:
         chunk_size = 25000
         if lfiles < chunk_size:
             chunk_size = lfiles
-
-        #find number of 25k file chunks
-        chunks = math.ceil(lfiles/chunk_size)
+            chunks = 1
+        else:
+            #find number of 25k file chunks
+            chunks = math.ceil(lfiles/chunk_size)
 
         for c in tq(range(chunks), position=0):
             print(str('\t*** Loading chunk ' + str(c+1) + ' of ' + str(chunks) + '... ***'))
@@ -181,7 +182,7 @@ class TSVReader:
             sdata = {}
 
             #create sublist of files
-            if c < chunks:
+            if c < chunks-1:
                 #get 25k chunk of files
                 sfiles = files[chunk_size*c:chunk_size*(c+1)]
             else:
