@@ -2,6 +2,8 @@ import logging
 import time
 import sys
 from PIL import Image
+from decimal import Decimal, getcontext
+
 
 ###LOGGING SETUP###
 logging.basicConfig(filename="ImageGenerator.log",
@@ -9,6 +11,9 @@ logging.basicConfig(filename="ImageGenerator.log",
                     filemode='a',
                     level=logging.INFO)
 logger = logging.getLogger()
+
+###FIXED POINT ARITHMETIC###
+getcontext().prec = 13
 
 ###DEFAULT PATH###
 PATH = "images"
@@ -64,13 +69,16 @@ class ImageGenerator:
             #loop through last 300 entries
             for i in range(600):
                 if i/2 % 2 == 0:
-                    #get value and graph press time
-                    value = int(press[int(i/2)]) % (1000/hz)
+                    period_ms = Decimal(1000) / Decimal(hz)
+                    phase_ms = int(press[int(i/2)]) % period_ms
+                    pixel_value = (phase_ms * 255) // period_ms
                 else:
                     #get value and graph release time
-                    value = int(release[int(i/2)]) % (1000/hz)
-
-                self.image.putpixel((i, hz-20), int(value/(1000/hz)*255))
+                    period_ms = Decimal(1000) / Decimal(hz)
+                    phase_ms = int(release[int(i/2)]) % period_ms
+                    pixel_value = (phase_ms * 255) // period_ms
+                    
+                self.image.putpixel((i, hz-20), pixel_value)
 
     """
     This function terminates the ImageGenerator object.
