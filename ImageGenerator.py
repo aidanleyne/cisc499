@@ -108,6 +108,7 @@ class ImageGenerator:
     """
     def validate_file(self, filename):
         rows = len(self.data['SENTENCE'])
+        #check that the file has enough rows to start
         if rows < 601:
             logger.debug(filename + " not enough rows : " + str(rows))
             return -1
@@ -117,7 +118,8 @@ class ImageGenerator:
 
         while i < (rows - 300):
             if self.data['SENTENCE'][i] != s:
-                if (rows - i) >= 300:
+                #check if enough rows remaining with 10 buffer rows
+                if (rows - i) >= 310:
                     return i+2
                 else:
                     logger.debug(filename + " not enough rows remaining after sentence change " + str(rows - i - 300) + "...")
