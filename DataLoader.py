@@ -144,7 +144,6 @@ class TSVReader:
         logger.debug("====START OF LOG====") #start of logging session
         
         #build dictionary
-        print(count)
         self.build(count)
 
         logger.debug("Data-dictionary is of length : " + str(len(self.data)))
@@ -167,6 +166,8 @@ class TSVReader:
             del count
         logger.debug("Begining Import on " + str(lfiles) + " files...")
 
+        print(lfiles)
+
         #establish chunk size. shrink if one chunk. Default: 25k
         chunk_size = 25000
         if lfiles < chunk_size:
@@ -175,6 +176,8 @@ class TSVReader:
         else:
             #find number of 25k file chunks
             chunks = math.ceil(lfiles/chunk_size)
+
+        print(chunk_size, ":", chunks)
 
         for c in tq(range(chunks), position=0):
             print(str('\t*** Loading chunk ' + str(c+1) + ' of ' + str(chunks) + '... ***'))
