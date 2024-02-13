@@ -8,7 +8,7 @@ from decimal import Decimal, getcontext
 logging.basicConfig(filename="ImageGenerator.log",
                     format='%(asctime)s : %(name)s : %(message)s',
                     filemode='a',
-                    level=logging.INFO)
+                    level=logging.DEBUG)
 logger = logging.getLogger()
 
 ###FIXED POINT ARITHMETIC###
