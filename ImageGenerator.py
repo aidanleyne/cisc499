@@ -85,8 +85,8 @@ class ImageGenerator:
                 press_value = (int(press[int(i)]) % period_ms * 255) // period_ms
                 release_value = (int(release[int(i/2)]) % period_ms * 255) // period_ms
                     
-                self.image.putpixel((i, hz-20), press_value)
-                self.image.putpixel((i+1, hz-20), release_value)
+                self.image.putpixel((i, hz-20), int(press_value))
+                self.image.putpixel((i+1, hz-20), int(release_value))
 
                 #memory management
                 del press
