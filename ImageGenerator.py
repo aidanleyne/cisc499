@@ -63,7 +63,7 @@ class ImageGenerator:
                 return
 
             #save image to destination
-            savename = str(self._PATH + '/' + str(filename[:-4]) + '_' + str(i) + '.png')
+            savename = str(self._PATH + '/' + str(filename[:-4]) + '_' + str(i+1) + '.png')
             self.image.save(savename)
             logger.debug("Image generated for data. Stored under : " + savename)
             return
@@ -74,12 +74,16 @@ class ImageGenerator:
     Returns: N/A
     """
     def compute(self, start):
-        sidx, eidx = 0 + start, 300 + start
+        #set start and end indicies
+        sidx = 0 + start
+        eidx = 300 + start
+
+        #make lists based on dataframe and indicies
         press = self.data['PRESS_TIME'][sidx : eidx].tolist()
         release = self.data['RELEASE_TIME'][sidx : eidx].tolist()
         
         #loop through hz range
-        for y, hz in range(20,501):
+        for hz in range(20,501):
             period_ms = Decimal(1000) / Decimal(hz)
             
             #loop through data for each pixel
@@ -90,12 +94,12 @@ class ImageGenerator:
                 press_pixel = (press_phase * 255) // period_ms
                 release_pixel = (release_phase * 255) // period_ms
                     
-                self.image.putpixel((x, y), int(press_pixel))
-                self.image.putpixel((x, y), int(release_pixel))
+                self.image.putpixel((x, hz-20), int(press_pixel))
+                self.image.putpixel((x, hz-20), int(release_pixel))
 
-                #memory management
-                del press
-                del release
+        #memory management
+        del press
+        del release
 
     """
     Validates that the file can be used for a phase image computation
