@@ -12,7 +12,7 @@ from tqdm import tqdm as tq
 logging.basicConfig(filename="dataLoader.log",
                     format='%(asctime)s : %(name)s : %(message)s',
                     filemode='a',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 logger = logging.getLogger()
 
 ###self._PATH TO DATA####
