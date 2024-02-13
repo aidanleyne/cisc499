@@ -67,18 +67,13 @@ class ImageGenerator:
         #loop through hz range
         for hz in range(20,501):
             #loop through last 300 entries
-            for i in range(600):
-                if i/2 % 2 == 0:
-                    period_ms = Decimal(1000) / Decimal(hz)
-                    phase_ms = int(press[int(i/2)]) % period_ms
-                    pixel_value = (phase_ms * 255) // period_ms
-                else:
-                    #get value and graph release time
-                    period_ms = Decimal(1000) / Decimal(hz)
-                    phase_ms = int(release[int(i/2)]) % period_ms
-                    pixel_value = (phase_ms * 255) // period_ms
+            for i in range(300):
+                period_ms = Decimal(1000) / Decimal(hz)
+                press_value = (int(press[int(i)]) % period_ms * 255) // period_ms
+                release_value = (int(release[int(i/2)]) % period_ms * 255) // period_ms
                     
-                self.image.putpixel((i, hz-20), pixel_value)
+                self.image.putpixel((i, hz-20), press_value)
+                self.image.putpixel((i+1, hz-20), release_value)
 
     """
     This function terminates the ImageGenerator object.
