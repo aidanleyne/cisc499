@@ -12,7 +12,7 @@ from tqdm import tqdm as tq
 logging.basicConfig(filename="dataLoader.log",
                     format='%(asctime)s : %(name)s : %(message)s',
                     filemode='a',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 logger = logging.getLogger()
 
 ###self._PATH TO DATA####
@@ -169,45 +169,56 @@ class TSVReader:
         #establish chunk size. shrink if one chunk. Default: 25k
         chunk_size = 25000
         if lfiles < chunk_size:
-            chunk_size = lfiles
-            chunks = 1
+            print(str('*** Loading 1 of 1 chunks for ' + str(lfiles) + ' files... ***')) 
+            
+            for i in tq(range(lfiles)):
+                    file = files[i]
+                    #read file into pandas df and append to dict
+                    fdata = self.load(file)
+                    if not fdata.empty:
+                        self.data[file] = fdata
+                    #logger.debug("Read in file : " + str(file))
+                        
+                    #free up memory from read-data
+                    del fdata
+
         else:
             #find number of 25k file chunks
             chunks = math.ceil(lfiles/chunk_size)
 
-        for c in tq(range(chunks), position=0):
-            print(str('\t*** Loading chunk ' + str(c+1) + ' of ' + str(chunks) + '... ***'))
-            
-            #create sub-dictionary
-            sdata = {}
+            for c in tq(range(chunks), position=0):
+                print(str('\t*** Loading chunk ' + str(c+1) + ' of ' + str(chunks) + '... ***'))
+                
+                #create sub-dictionary
+                sdata = {}
 
-            #create sublist of files
-            if c < chunks-1:
-                #get 25k chunk of files
-                sfiles = files[chunk_size*c:chunk_size*(c+1)]
-            else:
-                #get remaining files
-                sfiles = files[(-1 * (lfiles % chunk_size)):]
+                #create sublist of files
+                if c < chunks-1:
+                    #get 25k chunk of files
+                    sfiles = files[chunk_size*c : chunk_size*(c+1)]
+                else:
+                    #get remaining files
+                    sfiles = files[(-1 * (lfiles % chunk_size)):]
 
-            for i in tq(range(len(sfiles)), position=1, leave=False):
-                file = sfiles[i]
-                #read file into pandas df and append to dict
-                fdata = self.load(file)
-                if not fdata.empty:
-                    sdata[file] = fdata
-                #logger.debug("Read in file : " + str(file))
-                    
-                #free up memory from read-data
-                del fdata
+                for i in tq(range(len(sfiles)), position=1, leave=False):
+                    file = sfiles[i]
+                    #read file into pandas df and append to dict
+                    fdata = self.load(file)
+                    if not fdata.empty:
+                        sdata[file] = fdata
+                    #logger.debug("Read in file : " + str(file))
+                        
+                    #free up memory from read-data
+                    del fdata
 
-            #free up memory instead of just being overwritten
-            del sfiles
+                #free up memory instead of just being overwritten
+                del sfiles
 
-            #merge sdata into main dictionary
-            self.data = {**self.data, **sdata}
+                #merge sdata into main dictionary
+                self.data = {**self.data, **sdata}
 
-            #dispose of sdata to free up memory
-            del sdata
+                #dispose of sdata to free up memory
+                del sdata
     
     """
     Loads a file into a dataframe given a filename

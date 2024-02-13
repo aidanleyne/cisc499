@@ -29,6 +29,7 @@ if len(sys.argv) > 3:
 
 else:
     print("Requires at least 2 arguments: INPATH, OUTPATH; Optional arguments: Count")
+    exit()
 
 print("*** Loading Files... ***")
 if count > 0:
@@ -38,7 +39,7 @@ else:
     
 gen = ImageGenerator(OUTPATH)
 
-print("*** Loading Files... ***")
+print("\n*** Creating Images... ***")
 for filename, df in tq(reader.data.items()):
     gen.generate_image(df, filename)
 

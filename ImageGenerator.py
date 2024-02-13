@@ -4,7 +4,6 @@ import sys
 from PIL import Image
 from decimal import Decimal, getcontext
 
-
 ###LOGGING SETUP###
 logging.basicConfig(filename="ImageGenerator.log",
                     format='%(asctime)s : %(name)s : %(message)s',
@@ -34,51 +33,100 @@ class ImageGenerator:
     If a filename is not provided, the time since epoch is used
     """
     def generate_image(self, dataframe, filename=int(time.time_ns())):
-        #create blank image
-        self.image = Image.new('L', (600, 481))
-
         #get columns from passed dataframe
         try:
-            self.data = dataframe.loc[:,["PRESS_TIME", "RELEASE_TIME"]]
+            self.data = dataframe.loc[:,["SENTENCE", "PRESS_TIME", "RELEASE_TIME"]]
         except:
             logger.exception("Could not caputre columns for file : " + str(filename) + " --- skipping...")
             return
+        
+        #validate file
+        valid = self.validate_file(filename)
 
-        #compute the pixels for the image
-        try:
-            self.compute()
-        except:
-            logger.exception("Could not compute image for file : " + str(filename) + " --- skipping...")
+        #return and skip for invalid file
+        if valid == -1:
+            logger.info(str(filename) + " invalid for image generation --- skipping...")
             return
+        
+        #small array for the indexes used in image generation
+        indexes = [0, valid]
+        logger.debug("indexes for " + filename + " : " + str(indexes))
+       
+        for i in range(2):
+            #create blank image
+            self.image = Image.new('L', (600, 481))
 
-        #save image to destination
-        savename = str(self._PATH + '/' + str(filename) + '.png')
-        self.image.save(savename)
-        logger.debug("Image generated for data. Stored under : " + savename)
+            #compute the pixels for the image
+            try:
+                self.compute(indexes[i])
+            except:
+                logger.exception("Could not compute image for file : " + str(filename) + " --- skipping...")
+                return
+
+            #save image to destination
+            savename = str(self._PATH + '/' + str(filename[:-4]) + '_' + str(i+1) + '.png')
+            self.image.save(savename)
+            logger.debug("Image generated for data. Stored under : " + savename)
 
     """
     Performs necessay computations to color-in image
-    Requires: N/A
+    Requires: img - 0,1 for first or second image
     Returns: N/A
     """
-    def compute(self):
-        press = self.data['PRESS_TIME'][-300:].tolist()
-        release = self.data['RELEASE_TIME'][-300:].tolist()
+    def compute(self, start):
+        #set start and end indicies
+        sidx = 0 + start
+        eidx = 300 + start
+
+        #make lists based on dataframe and indicies
+        press = self.data['PRESS_TIME'][sidx : eidx].tolist()
+        release = self.data['RELEASE_TIME'][sidx : eidx].tolist()
+        
         #loop through hz range
         for hz in range(20,501):
-            #loop through last 300 entries
-            for i in range(600):
-                if i/2 % 2 == 0:
-                    period_ms = Decimal(1000) / Decimal(hz)
-                    phase_ms = int(press[int(i/2)]) % period_ms
-                    pixel_value = (phase_ms * 255) // period_ms
-                else:
-                    #get value and graph release time
-                    period_ms = Decimal(1000) / Decimal(hz)
-                    phase_ms = int(release[int(i/2)]) % period_ms
-                    pixel_value = (phase_ms * 255) // period_ms
+            period_ms = Decimal(1000) / Decimal(hz)
+            
+            #loop through data for each pixel
+            for x in range(300):
+                press_phase = int(press[x]) % period_ms 
+                release_phase = int(release[x]) % period_ms
+                
+                press_pixel = (press_phase * 255) // period_ms
+                release_pixel = (release_phase * 255) // period_ms
                     
-                self.image.putpixel((i, hz-20), pixel_value)
+                self.image.putpixel((x*2, hz-20), int(press_pixel))
+                self.image.putpixel(((x*2)+1, hz-20), int(release_pixel))
+
+        #memory management
+        del press
+        del release
+
+    """
+    Validates that the file can be used for a phase image computation
+    Requires: None
+    Returns: Index of where data changes or -1 for a file failure
+    """
+    def validate_file(self, filename):
+        rows = len(self.data['SENTENCE'])
+        #check that the file has enough rows to start
+        if rows < 601:
+            logger.debug(filename + " not enough rows : " + str(rows))
+            return -1
+        
+        s = self.data['SENTENCE'][300]
+        i = 301
+
+        while i < (rows - 300):
+            if self.data['SENTENCE'][i] != s:
+                #check if enough rows remaining with 10 buffer rows
+                if (rows - i) >= 310:
+                    return i+2
+                else:
+                    logger.debug(filename + " not enough rows remaining after sentence change " + str(rows - i - 300) + "...")
+                    return -1
+            i += 1
+        
+        return -1
 
     """
     This function terminates the ImageGenerator object.
