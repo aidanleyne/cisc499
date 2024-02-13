@@ -144,6 +144,7 @@ class TSVReader:
         logger.debug("====START OF LOG====") #start of logging session
         
         #build dictionary
+        print(count)
         self.build(count)
 
         logger.debug("Data-dictionary is of length : " + str(len(self.data)))

@@ -29,6 +29,7 @@ if len(sys.argv) > 3:
 
 else:
     print("Requires at least 2 arguments: INPATH, OUTPATH; Optional arguments: Count")
+    exit()
 
 print("*** Loading Files... ***")
 if count > 0:
