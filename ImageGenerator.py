@@ -77,16 +77,21 @@ class ImageGenerator:
         sidx, eidx = 0 + start, 300 + start
         press = self.data['PRESS_TIME'][sidx : eidx].tolist()
         release = self.data['RELEASE_TIME'][sidx : eidx].tolist()
+        
         #loop through hz range
-        for hz in range(20,501):
-            #loop through last 300 entries
-            for i in range(300):
-                period_ms = Decimal(1000) / Decimal(hz)
-                press_value = (int(press[int(i)]) % period_ms * 255) // period_ms
-                release_value = (int(release[int(i/2)]) % period_ms * 255) // period_ms
+        for y, hz in range(20,501):
+            period_ms = Decimal(1000) / Decimal(hz)
+            
+            #loop through data for each pixel
+            for x in range(300):
+                press_phase = int(press[x]) % period_ms 
+                release_phase = int(release[x]) % period_ms
+                
+                press_pixel = (press_phase * 255) // period_ms
+                release_pixel = (release_phase * 255) // period_ms
                     
-                self.image.putpixel((i, hz-20), int(press_value))
-                self.image.putpixel((i+1, hz-20), int(release_value))
+                self.image.putpixel((x, y), int(press_pixel))
+                self.image.putpixel((x, y), int(release_pixel))
 
                 #memory management
                 del press
