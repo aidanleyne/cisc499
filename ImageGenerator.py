@@ -50,6 +50,7 @@ class ImageGenerator:
         
         #small array for the indexes used in image generation
         indexes = [0, valid]
+        logger.debug("indexes for " + filename + " : " + str(indexes))
        
         for i in range(2):
             #create blank image
@@ -66,7 +67,6 @@ class ImageGenerator:
             savename = str(self._PATH + '/' + str(filename[:-4]) + '_' + str(i+1) + '.png')
             self.image.save(savename)
             logger.debug("Image generated for data. Stored under : " + savename)
-            return
 
     """
     Performs necessay computations to color-in image
@@ -94,8 +94,8 @@ class ImageGenerator:
                 press_pixel = (press_phase * 255) // period_ms
                 release_pixel = (release_phase * 255) // period_ms
                     
-                self.image.putpixel((x, hz-20), int(press_pixel))
-                self.image.putpixel((x, hz-20), int(release_pixel))
+                self.image.putpixel((x*2, hz-20), int(press_pixel))
+                self.image.putpixel(((x*2)+1, hz-20), int(release_pixel))
 
         #memory management
         del press
@@ -117,7 +117,7 @@ class ImageGenerator:
         while i < rows:
             if self.data['SENTENCE'][i] != s:
                 if (rows - i) >= 300:
-                    return i
+                    return i+2
                 else:
                     return -1
             i += 1

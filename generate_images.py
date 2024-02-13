@@ -15,7 +15,6 @@ OUTPATH = 'images'
 #set a default number of files to count-in
 count = -1
 
-
 if len(sys.argv) > 2:
     INPATH = sys.argv[1]
     OUTPATH = sys.argv[2]
