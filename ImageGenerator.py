@@ -41,7 +41,7 @@ class ImageGenerator:
             return
         
         #validate file
-        valid = self.validate_file()
+        valid = self.validate_file(filename)
 
         #return and skip for invalid file
         if valid == -1:
@@ -106,21 +106,24 @@ class ImageGenerator:
     Requires: None
     Returns: Index of where data changes or -1 for a file failure
     """
-    def validate_file(self):
+    def validate_file(self, filename):
         rows = len(self.data['SENTENCE'])
-        if rows < 700:
+        if rows < 601:
+            logger.debug(filename + " not enough rows : " + str(rows))
             return -1
         
         s = self.data['SENTENCE'][300]
         i = 301
 
-        while i < rows:
+        while i < (rows - 300):
             if self.data['SENTENCE'][i] != s:
                 if (rows - i) >= 300:
                     return i+2
                 else:
+                    logger.debug(filename + " not enough rows remaining after sentence change " + str(rows - i - 300) + "...")
                     return -1
             i += 1
+        
         return -1
 
     """
