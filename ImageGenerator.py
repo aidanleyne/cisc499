@@ -77,7 +77,7 @@ class ImageGenerator:
 
         #if both images are generated, save them
         if len(images) == 2:
-            for savename, img in images:
+            for savename, img in images.items():
                 img.save(savename)
                 logger.debug("Image generated for data. Stored under : " + savename)
             return
