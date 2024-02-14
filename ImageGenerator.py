@@ -41,7 +41,11 @@ class ImageGenerator:
             return
         
         #validate file
-        valid = self.validate_file(filename)
+        try:
+            valid = self.validate_file(filename)
+        except:
+            logger.exception("Could not validate " + str(filename) + " --- skipping...")
+            return
 
         #return and skip for invalid file
         if valid == -1:
