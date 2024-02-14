@@ -80,6 +80,8 @@ class ImageGenerator:
             for savename, img in images.items():
                 img.save(savename)
                 logger.debug("Image generated for data. Stored under : " + savename)
+        
+            del images
             return
 
         logger.info("Only one image saved for : " + filename + " --- skipping...")
