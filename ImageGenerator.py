@@ -51,7 +51,11 @@ class ImageGenerator:
         #small array for the indexes used in image generation
         indexes = [0, valid]
         logger.debug("indexes for " + filename + " : " + str(indexes))
+
+        #create dict to make sure both images are generated
+        images = {}
        
+        #generate the pair of images and save to dict
         for i in range(2):
             #create blank image
             self.image = Image.new('L', (600, 481))
@@ -65,8 +69,17 @@ class ImageGenerator:
 
             #save image to destination
             savename = str(self._PATH + '/' + str(filename[:-4]) + '_' + str(i+1) + '.png')
-            self.image.save(savename)
-            logger.debug("Image generated for data. Stored under : " + savename)
+            images[savename] = self.image
+
+        #if both images are generated, save them
+        if len(images) == 2:
+            for savename, img in images:
+                img.save(savename)
+                logger.debug("Image generated for data. Stored under : " + savename)
+            return
+
+        logger.info("Only one image saved for : " + filename + " --- skipping...")
+        return
 
     """
     Performs necessay computations to color-in image
