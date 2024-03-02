@@ -4,18 +4,41 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>CISC 499</title>
+        <style>
+          #inputField {
+            width: 250px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #333;
+            background-color: #f8f8f8;
+            transition: border-color 0.3s ease;
+          }
+          p, #eventsLeftText {
+            font-family: Georgia, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+          }
+        </style>
     </head>
     
     <body>
-        <form>
-          <label for="inputField">Type something: (600 events)</label><br>
+        <form style="text-align: center;">
+          <label for="inputField" id="eventsLeftText">Type something: (600 events)</label><br>
           <input type="text" id="inputField" name="inputField">
         </form>
         
         <p>Keydown Time: <span id="keydownTime"></span></p>
         <p>Keyup Time: <span id="keyupTime"></span></p>
         
-        <canvas id="myCanvas" width="600" height="481"></canvas>
+        <div style="display: flex; justify-content: center; align-items: center;">
+          <canvas id="myCanvas" width="600" height="481"></canvas>
+        </div>
         <script>
         var events = [];
         var image_generated = false
@@ -51,8 +74,11 @@
             if(events.length >= 600) {
               generate_image();
             } else {
+              document.getElementById("eventsLeftText").innerHTML = `Type something: (600 events, ${600-events.length} left)`
               console.log(events.length);
             }
+          } else {
+            document.getElementById("eventsLeftText").innerHTML = "image generated"
           }
         });
         
