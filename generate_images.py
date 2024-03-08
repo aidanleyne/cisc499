@@ -83,6 +83,6 @@ gen = ImageGenerator(OUTPATH)
 
 print("\n*** Creating Images... ***")
 pool = multiprocessing.Pool(processes=NUM_OF_CORES)
-pool.map(run, reader.data.items()) 
+for _ in tq(pool.map(run, reader.data.items()), total=len(reader.data.items()))
 
 gen.close()
