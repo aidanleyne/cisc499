@@ -181,9 +181,11 @@ class ImageGenerator:
         with open(savename, 'w') as file:
             file.write("TIME_DELTA\n")
 
-            for i in range(sidx+299, sidx+1, -1):
+            for i in range(299):
                 file.write(str(int(release[i] - press[i])) + '\n')
-                file.write(str(int(release[i] - release[i-1])) + '\n')
+                file.write(str(int(press[i+1] - release[i])) + '\n')
+
+        file.close()
             
     """
     This function terminates the ImageGenerator object.
