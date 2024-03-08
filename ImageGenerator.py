@@ -62,8 +62,8 @@ class ImageGenerator:
        
         #generate the pair of images and save to dict
         try:
-            t1 = Thread(self.compute(self.indexes[0], filename))
-            t2 = Thread(self.compute(self.indexes[1], filename))
+            t1 = Thread(self.compute(self.indexes[0], filename, 1))
+            t2 = Thread(self.compute(self.indexes[1], filename, 2))
 
             t1.start()
             t2.start()
@@ -90,7 +90,7 @@ class ImageGenerator:
     Requires: img - 0,1 for first or second image
     Returns: N/A
     """
-    def compute(self, start, filename):
+    def compute(self, start, filename, filenum):
         #create an image
         image = Image.new('L', (600, 481))
 
@@ -118,7 +118,7 @@ class ImageGenerator:
                 image.putpixel(((x*2)+1, hz-20), int(release_pixel))
 
         #save image to dict
-            savename = str(self._PATH + '/' + str(filename[:-4]) + '_' + str(sidx+1) + '.png')
+            savename = str(self._PATH + '/' + str(filename[:-4]) + '_' + str(filenum) + '.png')
             self.images[savename] = image
 
         #memory management
