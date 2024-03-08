@@ -62,8 +62,8 @@ class ImageGenerator:
        
         #generate the pair of images and save to dict
         try:
-            t1 = Thread(self.compute(self.indexes[0]))
-            t2 = Thread(self.compute(self.indexes[1]))
+            t1 = Thread(self.compute(self.indexes[0], filename))
+            t2 = Thread(self.compute(self.indexes[1], filename))
 
             t1.start()
             t2.start()
