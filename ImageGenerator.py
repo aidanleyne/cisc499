@@ -36,7 +36,7 @@ class ImageGenerator:
     def generate_image(self, dataframe, filename=int(time.time_ns()), saveFile=0):
         #get columns from passed dataframe
         try:
-            self.data = dataframe.loc[:,["PRESS_TIME", "RELEASE_TIME"]]
+            self.data = dataframe.loc[:,["SENTENCE", "PRESS_TIME", "RELEASE_TIME"]]
         except:
             logger.exception("Could not caputre columns for file : " + str(filename) + " --- skipping...")
             return
