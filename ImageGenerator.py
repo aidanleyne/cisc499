@@ -168,19 +168,19 @@ class ImageGenerator:
 
     def save_data(self, savename):
         #identify start-point in the data based on file being written
-        sidx = int(savename[-5:-4]) - 1
+        sidx = self.indexes[int(savename[-5:-4]) - 1]
         eidx = 300 + sidx
 
         #make lists based on dataframe and indicies
         press = self.data['PRESS_TIME'][sidx : eidx].tolist()
         release = self.data['RELEASE_TIME'][sidx : eidx].tolist()
 
-        with open(savename, 'x') as file:
+        with open(savename, 'w') as file:
             file.write("TIME_DELTA\n")
 
-            for i in range(299):
+            for i in range(sidx, sidx+299):
                 file.write(str(int(release[i] - press[i])) + '\n')
-                file.write(str(int(release[i] - press[i])) + '\n')
+                file.write(str(int(release[i] - press[i+1])) + '\n')
 
             
     """
