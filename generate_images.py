@@ -2,9 +2,18 @@
 Generates images for all desktop data files in the /data folder.
 """
 import sys
+import multiprocessing
 from tqdm import tqdm as tq
 from ImageGenerator import ImageGenerator
 from DataLoader import TSVReader
+
+
+def run(item, savefile):
+    filename, df = item
+    gen.generate_image(df, filename, savefile)
+
+#set number of threads on system
+NUM_OF_CORES = 16
 
 #set a default path for the data
 INPATH = 'data'
@@ -73,7 +82,7 @@ else:
 gen = ImageGenerator(OUTPATH)
 
 print("\n*** Creating Images... ***")
-for filename, df in tq(reader.data.items()):
-    gen.generate_image(df, filename, savefile)
+pool = multiprocessing.Pool(processes=NUM_OF_CORES)
+pool.map(run, reader.data.items(), savefile) 
 
 gen.close()
