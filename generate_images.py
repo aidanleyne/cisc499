@@ -8,9 +8,9 @@ from ImageGenerator import ImageGenerator
 from DataLoader import TSVReader
 
 
-def run(item, savefile):
+def run(item):
     filename, df = item
-    gen.generate_image(df, filename, savefile)
+    gen.generate_image(df, filename, 1)
 
 #set number of threads on system
 NUM_OF_CORES = 16
@@ -43,7 +43,7 @@ if len(sys.argv) > 5:
     else:
         savefile=0
 
-elif len(sys.argv) > 5:
+elif len(sys.argv) > 4:
     INPATH = sys.argv[1]
     OUTPATH = sys.argv[2]
     try:
@@ -83,6 +83,6 @@ gen = ImageGenerator(OUTPATH)
 
 print("\n*** Creating Images... ***")
 pool = multiprocessing.Pool(processes=NUM_OF_CORES)
-pool.map(run, (reader.data.items(), savefile)) 
+pool.map(run, reader.data.items()) 
 
 gen.close()
