@@ -136,7 +136,7 @@ class CSVWriter:
 Class for reading files from tab-delimited format
 """
 class TSVReader:
-    def __init__(self, path=PATH, count=-1):
+    def __init__(self, path=PATH, count=-1, bottomUp=False):
         #allow for path specification
         self._PATH = path
 
@@ -144,7 +144,7 @@ class TSVReader:
         logger.debug("====START OF LOG====") #start of logging session
         
         #build dictionary
-        self.build(count)
+        self.build(count, bottomUp)
 
         logger.debug("Data-dictionary is of length : " + str(len(self.data)))
         logger.info("====END OF LOG==== \n")
@@ -155,9 +155,13 @@ class TSVReader:
     Requires: N/A
     Returns: N/A
     """
-    def build(self, count):
+    def build(self, count, bottomUp):
         #get number of files through one call and can be reused
         files = self.get_files()
+
+        if bottomUp:
+            files.reverse()
+
         if count == -1:
             lfiles = len(files)
             del count
