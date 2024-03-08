@@ -1,6 +1,7 @@
 import logging
 import time
 import sys
+from threading import Thread
 from PIL import Image
 from decimal import Decimal, getcontext
 
@@ -32,7 +33,7 @@ class ImageGenerator:
     Returns: N/A
     If a filename is not provided, the time since epoch is used
     """
-    def generate_image(self, dataframe, filename=int(time.time_ns())):
+    def generate_image(self, dataframe, filename=int(time.time_ns()), saveFile=0):
         #get columns from passed dataframe
         try:
             self.data = dataframe.loc[:,["SENTENCE", "PRESS_TIME", "RELEASE_TIME"]]
@@ -53,35 +54,32 @@ class ImageGenerator:
             return
         
         #small array for the indexes used in image generation
-        indexes = [0, valid]
-        logger.debug("indexes for " + filename + " : " + str(indexes))
+        self.indexes = [0, valid]
+        logger.debug("indexes for " + filename + " : " + str(self.indexes))
 
         #create dict to make sure both images are generated
-        images = {}
+        self.images = {}
        
         #generate the pair of images and save to dict
-        for i in range(2):
-            #create blank image
-            self.image = Image.new('L', (600, 481))
+        try:
+            t1 = Thread(self.compute(self.indexes[0], filename, 1))
+            t2 = Thread(self.compute(self.indexes[1], filename, 2))
 
-            #compute the pixels for the image
-            try:
-                self.compute(indexes[i])
-            except:
-                logger.exception("Could not compute image for file : " + str(filename) + " --- skipping...")
-                return
+            t1.start()
+            t2.start()
 
-            #save image to destination
-            savename = str(self._PATH + '/' + str(filename[:-4]) + '_' + str(i+1) + '.png')
-            images[savename] = self.image
-
-        #if both images are generated, save them
-        if len(images) == 2:
-            for savename, img in images.items():
-                img.save(savename)
-                logger.debug("Image generated for data. Stored under : " + savename)
+            t1.join()
+            t2.join()
+        except:
+            logger.exception("Could not compute image for file : " + str(filename) + " --- skipping...")
+            return
         
-            del images
+        #if both images are generated, save them
+        if len(self.images) == 2:
+            self.save(saveFile)
+            
+            del self.images
+            del self.data
             return
 
         logger.info("Only one image saved for : " + filename + " --- skipping...")
@@ -92,9 +90,12 @@ class ImageGenerator:
     Requires: img - 0,1 for first or second image
     Returns: N/A
     """
-    def compute(self, start):
+    def compute(self, start, filename, filenum):
+        #create an image
+        image = Image.new('L', (600, 481))
+
         #set start and end indicies
-        sidx = 0 + start
+        sidx = start
         eidx = 300 + start
 
         #make lists based on dataframe and indicies
@@ -113,8 +114,12 @@ class ImageGenerator:
                 press_pixel = (press_phase * 255) // period_ms
                 release_pixel = (release_phase * 255) // period_ms
                     
-                self.image.putpixel((x*2, hz-20), int(press_pixel))
-                self.image.putpixel(((x*2)+1, hz-20), int(release_pixel))
+                image.putpixel((x*2, hz-20), int(press_pixel))
+                image.putpixel(((x*2)+1, hz-20), int(release_pixel))
+
+        #save image to dict
+            savename = str(self._PATH + '/' + str(filename[:-4]) + '_' + str(filenum) + '.png')
+            self.images[savename] = image
 
         #memory management
         del press
@@ -147,6 +152,42 @@ class ImageGenerator:
         
         return -1
 
+    """
+    Saves the data used to generate a phase image
+    Requires: saveFile (num) - if the file-data is to be saved
+    Returns:
+    """
+    def save(self, saveFile):
+        for savename, img in self.images.items():
+                img.save(savename)
+                logger.debug("Image generated for data. Stored under : " + savename)
+
+                if saveFile == 1:
+                    data_name = str(savename[:-4] + '.txt')
+                    self.save_data(data_name)
+
+    """
+    
+    """
+    def save_data(self, savename):
+        #identify start-point in the data based on file being written
+        sidx = self.indexes[int(savename[-5:-4]) - 1]
+        eidx = 300 + sidx
+
+        #make lists based on dataframe and indicies
+        press = self.data['PRESS_TIME'][sidx : eidx].tolist()
+        release = self.data['RELEASE_TIME'][sidx : eidx].tolist()
+
+        with open(savename, 'w') as file:
+            file.write("TIME_DELTA\n")
+
+            for i in range(299):
+                file.write(str(int(release[i] - press[i])) + '\n')
+                file.write(str(int(press[i+1] - release[i])) + '\n')
+            file.write(str(int(release[299] - press[299])) + '\n')
+
+        file.close()
+            
     """
     This function terminates the ImageGenerator object.
     Also closes the logger.
