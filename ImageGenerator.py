@@ -179,8 +179,8 @@ class ImageGenerator:
             file.write("TIME_DELTA\n")
 
             for i in range(299):
-                file.write(str(int(release[i] - press[i]) + '\n'))
-                file.write(str(int(release[i] - press[i]) + '\n'))
+                file.write(str(int(release[i] - press[i])) + '\n')
+                file.write(str(int(release[i] - press[i])) + '\n')
 
             
     """
