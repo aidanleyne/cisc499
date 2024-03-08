@@ -15,7 +15,26 @@ OUTPATH = 'images'
 #set a default number of files to count-in
 count = -1
 
-if len(sys.argv) > 4:
+if len(sys.argv) > 5:
+    INPATH = sys.argv[1]
+    OUTPATH = sys.argv[2]
+    try:
+        count = int(sys.argv[3])
+    except:
+        print("Not a valid number of files. Will load all possible")
+
+    if sys.argv[4] == 'reverse=True':
+        reverse = True
+        print('Reding files bottom up...')
+    else:
+        reverse = False
+
+    if sys.argv[5] == 'save=True':
+        savefile=1
+    else:
+        savefile=0
+
+elif len(sys.argv) > 5:
     INPATH = sys.argv[1]
     OUTPATH = sys.argv[2]
     try:
@@ -55,6 +74,6 @@ gen = ImageGenerator(OUTPATH)
 
 print("\n*** Creating Images... ***")
 for filename, df in tq(reader.data.items()):
-    gen.generate_image(df, filename)
+    gen.generate_image(df, filename, savefile)
 
 gen.close()
