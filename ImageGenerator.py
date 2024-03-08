@@ -164,7 +164,7 @@ class ImageGenerator:
 
                 if saveFile == 1:
                     data_name = str(savename[:-4] + '.txt')
-                    self.save_data(savename)
+                    self.save_data(data_name)
 
     def save_data(self, savename):
         #identify start-point in the data based on file being written
