@@ -166,6 +166,9 @@ class ImageGenerator:
                     data_name = str(savename[:-4] + '.txt')
                     self.save_data(data_name)
 
+    """
+    
+    """
     def save_data(self, savename):
         #identify start-point in the data based on file being written
         sidx = self.indexes[int(savename[-5:-4]) - 1]
@@ -178,10 +181,9 @@ class ImageGenerator:
         with open(savename, 'w') as file:
             file.write("TIME_DELTA\n")
 
-            for i in range(sidx, sidx+299):
+            for i in range(sidx+299, sidx+1, -1):
                 file.write(str(int(release[i] - press[i])) + '\n')
-                file.write(str(int(release[i] - press[i+1])) + '\n')
-
+                file.write(str(int(release[i] - release[i-1])) + '\n')
             
     """
     This function terminates the ImageGenerator object.
