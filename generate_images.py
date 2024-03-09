@@ -90,7 +90,7 @@ gen = ImageGenerator(OUTPATH)
 files = reader.get_files()
 
 print("*** Loading Files... ***")
-for _ in tq(pool.imap_unordered(file_read, files), total=len(len(files))):
+for _ in tq(pool.imap_unordered(file_read, files), total=len(files)):
     pass
 
 print("\n*** Creating Images... ***")
