@@ -8,9 +8,12 @@ from ImageGenerator import ImageGenerator
 from DataLoader import TSVReader
 
 
-def run(item):
+def img_gen(item):
     filename, df = item
     gen.generate_image(df, filename, 1)
+
+def file_read(filename):
+    data[filename] = reader.read(filename)
 
 #set number of threads on system
 NUM_OF_CORES = 16
@@ -23,6 +26,13 @@ OUTPATH = 'images'
 
 #set a default number of files to count-in
 count = -1
+
+#start dictionary for everything to be appended
+data = {}
+
+#create multiprocessing pool
+pool = multiprocessing.Pool(processes=NUM_OF_CORES)
+
 
 if len(sys.argv) > 5:
     INPATH = sys.argv[1]
@@ -73,17 +83,19 @@ else:
     print("Requires at least 2 arguments: INPATH, OUTPATH; Optional arguments: Count")
     exit()
 
-print("*** Loading Files... ***")
-if count > 0:
-    reader = TSVReader(INPATH, count, reverse)
-else:
-    reader = TSVReader(INPATH)
-    
+reader = TSVReader(INPATH, count, reverse)
 gen = ImageGenerator(OUTPATH)
 
+#get files in directory
+files = reader.get_files()
+
+print("*** Loading Files... ***")
+for _ in tq(pool.imap_unordered(file_read, files), total=len(len(files))):
+    pass
+
 print("\n*** Creating Images... ***")
-pool = multiprocessing.Pool(processes=NUM_OF_CORES)
-for _ in tq(pool.imap_unordered(run, reader.data.items()), total=len(reader.data.items())):
+for _ in tq(pool.imap_unordered(img_gen, data.items()), total=len(reader.data.items())):
     pass
 
 gen.close()
+reader.close()

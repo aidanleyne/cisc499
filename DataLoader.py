@@ -136,19 +136,17 @@ class CSVWriter:
 Class for reading files from tab-delimited format
 """
 class TSVReader:
-    def __init__(self, path=PATH, count=-1, bottomUp=False):
+    def __init__(self, path=PATH, autoBuild=False, count=-1, bottomUp=False):
         #allow for path specification
         self._PATH = path
 
         self.data = {}
         logger.debug("====START OF LOG====") #start of logging session
         
-        #build dictionary
-        self.build(count, bottomUp)
-
-        logger.debug("Data-dictionary is of length : " + str(len(self.data)))
-        logger.info("====END OF LOG==== \n")
-        return
+        if autoBuild:
+            #build dictionary
+            self.build(count, bottomUp)
+            logger.debug("Data-dictionary is of length : " + str(len(self.data)))
     
     """
     Logic for building the dataframe based on files provided
@@ -170,7 +168,7 @@ class TSVReader:
             del count
         logger.debug("Begining Import on " + str(lfiles) + " files...")
 
-        #establish chunk size. shrink if one chunk. Default: 25k
+        #establish chunk size. shrink if one chunk. Default: 25,000
         chunk_size = 25000
         if lfiles < chunk_size:
             print(str('*** Loading 1 of 1 chunks for ' + str(lfiles) + ' files... ***')) 
@@ -178,10 +176,10 @@ class TSVReader:
             for i in tq(range(lfiles)):
                     file = files[i]
                     #read file into pandas df and append to dict
-                    fdata = self.load(file)
+                    fdata = self.read(file)
                     if not fdata.empty:
                         self.data[file] = fdata
-                    #logger.debug("Read in file : " + str(file))
+                    logger.debug("Read in file : " + str(file))
                         
                     #free up memory from read-data
                     del fdata
@@ -207,10 +205,10 @@ class TSVReader:
                 for i in tq(range(len(sfiles)), position=1, leave=False):
                     file = sfiles[i]
                     #read file into pandas df and append to dict
-                    fdata = self.load(file)
+                    fdata = self.read(file)
                     if not fdata.empty:
                         sdata[file] = fdata
-                    #logger.debug("Read in file : " + str(file))
+                    logger.debug("Read in file : " + str(file))
                         
                     #free up memory from read-data
                     del fdata
@@ -229,7 +227,7 @@ class TSVReader:
     Requires: filename
     Returns: Pandas dataframe
     """
-    def load(self, filename):
+    def read(self, filename):
         try:
             return pd.read_csv(str(self._PATH + '/' + filename), header=0, delimiter='\t')
         except:
@@ -250,15 +248,22 @@ class TSVReader:
         for file in files:
             if file.endswith('.txt'):
                 cleaned.append(str(file))
-                #logger.debug("File retained : " + str(file))
+                logger.debug("File retained : " + str(file))
 
             else:
-                logger.debug("Incorrect file type removed. File : " + str(file))
+                logger.info("Incorrect file type removed. File : " + str(file))
 
         #remove the array that holds the file names for mem management
         del files
             
         return cleaned
+
+    """
+    Closes the reader and performs any necessary activities
+    """
+    def close(self):
+        logger.info("====END OF LOG==== \n")
+        del self.data
 
 """
 Class for writing files to tab-delimited format
