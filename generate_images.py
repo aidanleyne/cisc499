@@ -7,14 +7,6 @@ from tqdm import tqdm as tq
 from ImageGenerator import ImageGenerator
 from DataLoader import TSVReader
 
-
-def img_gen(item):
-    filename, df = item
-    gen.generate_image(df, filename, 1)
-
-def file_read(filename):
-    data[filename] = reader.read(filename)
-
 #set number of threads on system
 NUM_OF_CORES = 16
 
@@ -24,15 +16,8 @@ INPATH = 'data'
 #set a default path for the images
 OUTPATH = 'images'
 
-#set a default number of files to count-in
-count = -1
-
 #start dictionary for everything to be appended
 data = {}
-
-#create multiprocessing pool
-pool = multiprocessing.Pool(processes=NUM_OF_CORES)
-
 
 if len(sys.argv) > 5:
     INPATH = sys.argv[1]
@@ -83,19 +68,41 @@ else:
     print("Requires at least 2 arguments: INPATH, OUTPATH; Optional arguments: Count")
     exit()
 
-reader = TSVReader(INPATH, count, reverse)
+reader = TSVReader(INPATH)
 gen = ImageGenerator(OUTPATH)
 
-#get files in directory
-files = reader.get_files()
+def file_read(filename):
+    data[filename] = reader.read(filename)
 
-print("*** Loading Files... ***")
-for _ in tq(pool.imap_unordered(file_read, files), total=len(files)):
-    pass
+def img_gen(item):
+    filename, df = item
+    gen.generate_image(df, filename, 1)
 
-print("\n*** Creating Images... ***")
-for _ in tq(pool.imap_unordered(img_gen, data.items()), total=len(reader.data.items())):
-    pass
+def main():
+    #create multiprocessing pool
+    pool = multiprocessing.Pool(processes=NUM_OF_CORES)
+    
+    #load in files
+    print("*** Loading Files... ***")
+    files = reader.get_files()
+    print(files)
+    with tq(total=len(files)) as pbar:
+        for _ in pool.imap_unordered(file_read, files):
+            pbar.update(1)
 
-gen.close()
-reader.close()
+    print(data)
+
+    #make the phase images
+    print("\n*** Creating Images... ***")
+    with tq(total=len(data)) as pbar:
+        for _ in pool.imap_unordered(img_gen, data.items()):
+            pbar.update(1)
+
+    pool.close()
+    pool.join()
+    
+    gen.close()
+    reader.close()
+
+if __name__ == '__main__':
+    main()

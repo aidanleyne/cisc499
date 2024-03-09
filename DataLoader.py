@@ -139,12 +139,13 @@ class TSVReader:
     def __init__(self, path=PATH, autoBuild=False, count=-1, bottomUp=False):
         #allow for path specification
         self._PATH = path
-
         self.data = {}
-        logger.debug("====START OF LOG====") #start of logging session
+        
+        #start of logging session
+        logger.debug("====START OF LOG====")
         
         if autoBuild:
-            #build dictionary
+            #build dictionary            
             self.build(count, bottomUp)
             logger.debug("Data-dictionary is of length : " + str(len(self.data)))
     
