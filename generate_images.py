@@ -68,13 +68,8 @@ else:
     print("Requires at least 2 arguments: INPATH, OUTPATH; Optional arguments: Count")
     exit()"""
 
-reader = TSVReader('data/Keystrokes')
-gen = ImageGenerator(OUTPATH)
-
-def file_read(filename):
-    fdata = reader.read(filename)
-    if not fdata.empty:
-        data[filename] = fdata
+reader = TSVReader('data/Keystrokes/files')
+gen = ImageGenerator('images4')
 
 def img_gen(item):
     filename, df = item
@@ -100,13 +95,13 @@ def main():
         else:
             sub_files = files[c*chunck_size:(c+1)*chunck_size]
 
+        #read files
         print("*** Loading Files... ***")
         with tq(total=len(sub_files)) as pbar:
-            for file in sub_files:
-                file_read(file)
-                pbar.update(1)
-
-        print(len(data))
+            for filename in tq(sub_files):
+                fdata = reader.read(filename)
+                if not fdata.empty:
+                    data[filename] = fdata
 
         #make the phase images
         print("\n*** Creating Images... ***")
