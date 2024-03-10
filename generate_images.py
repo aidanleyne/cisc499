@@ -55,7 +55,8 @@ def main():
     #calculate chunks required
     chunks = len(files) // args.cSize
 
-    for c in range(chunks+1):
+    for c in tq(range(chunks+1)):
+        print("*** Loading Chunk" + str(c) + " of " + str(chunks) + "... ***")
         data.clear()
         
         #get subset of files to process
@@ -67,11 +68,10 @@ def main():
 
         #read files
         print("*** Loading Files... ***")
-        with tq(total=len(sub_files)) as pbar:
-            for filename in tq(sub_files):
-                fdata = reader.read(filename)
-                if not fdata.empty:
-                    data[filename] = fdata
+        for filename in tq(sub_files):
+            fdata = reader.read(filename)
+            if not fdata.empty:
+                data[filename] = fdata
 
         #make the phase images
         print("\n*** Creating Images... ***")
