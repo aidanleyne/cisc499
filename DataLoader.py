@@ -231,9 +231,9 @@ class TSVReader:
     def read(self, filename):
         try:
             filepath = str(self._PATH + '/' + filename)
-            return pd.read_csv(filepath, header=0, delimiter='\t', on_bad_lines='skip')
-        except Exception as e:
-            logger.exception("Could not parse file : " + filename)
+            return pd.read_csv(filepath, header=0, delimiter='\t', engine='pyarrow')
+        except:
+            logger.error("Could not parse file : " + filename)
             return pd.DataFrame()
 
     """

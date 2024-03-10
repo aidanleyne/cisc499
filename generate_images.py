@@ -72,7 +72,9 @@ reader = TSVReader('data/Keystrokes')
 gen = ImageGenerator(OUTPATH)
 
 def file_read(filename):
-    data[filename] = reader.read(filename)
+    fdata = reader.read(filename)
+    if not fdata.empty:
+        data[filename] = fdata
 
 def img_gen(item):
     filename, df = item
@@ -83,22 +85,34 @@ def main():
     pool = multiprocessing.Pool(processes=NUM_OF_CORES)
     
     #load in files
-    print("*** Loading Files... ***")
-    files = reader.get_files()[:10000]
-    with tq(total=len(files)) as pbar:
-        #for _ in pool.imap_unordered(file_read, files):
-            #pbar.update(1)
-        for file in files:
-            file_read(file)
-            pbar.update(1)
+    files = reader.get_files()
 
-    print(len(data))
+    chunck_size = 1000
+    chunks = len(files) // chunck_size
 
-    #make the phase images
-    print("\n*** Creating Images... ***")
-    with tq(total=len(data)) as pbar:
-        for _ in pool.imap_unordered(img_gen, data.items()):
-            pbar.update(1)
+    for c in range(chunks+1):
+        data.clear()
+        
+        #get subset of files to process
+        if c == chunks:
+            remainder = len(files) % chunck_size
+            sub_files = files[:remainder] 
+        else:
+            sub_files = files[c*chunck_size:(c+1)*chunck_size]
+
+        print("*** Loading Files... ***")
+        with tq(total=len(sub_files)) as pbar:
+            for file in sub_files:
+                file_read(file)
+                pbar.update(1)
+
+        print(len(data))
+
+        #make the phase images
+        print("\n*** Creating Images... ***")
+        with tq(total=len(data)) as pbar:
+            for _ in pool.imap_unordered(img_gen, data.items()):
+                pbar.update(1)
 
     pool.close()
     pool.join()
