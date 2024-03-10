@@ -19,7 +19,7 @@ OUTPATH = 'images'
 #start dictionary for everything to be appended
 data = {}
 
-if len(sys.argv) > 5:
+"""if len(sys.argv) > 5:
     INPATH = sys.argv[1]
     OUTPATH = sys.argv[2]
     try:
@@ -66,9 +66,9 @@ elif len(sys.argv) > 2:
 
 else:
     print("Requires at least 2 arguments: INPATH, OUTPATH; Optional arguments: Count")
-    exit()
+    exit()"""
 
-reader = TSVReader(INPATH)
+reader = TSVReader('data/Keystrokes')
 gen = ImageGenerator(OUTPATH)
 
 def file_read(filename):
@@ -84,13 +84,15 @@ def main():
     
     #load in files
     print("*** Loading Files... ***")
-    files = reader.get_files()
-    print(files)
+    files = reader.get_files()[:10000]
     with tq(total=len(files)) as pbar:
-        for _ in pool.imap_unordered(file_read, files):
+        #for _ in pool.imap_unordered(file_read, files):
+            #pbar.update(1)
+        for file in files:
+            file_read(file)
             pbar.update(1)
 
-    print(data)
+    print(len(data))
 
     #make the phase images
     print("\n*** Creating Images... ***")

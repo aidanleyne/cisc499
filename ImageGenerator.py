@@ -186,7 +186,7 @@ class ImageGenerator:
             for i in range(299):
                 file.write(str(int(release[i] - press[i])) + '\n')
                 file.write(str(int(press[i+1] - release[i])) + '\n')
-            file.write(str(int(release[299] - press[299])) + '\n')
+            file.write(str(int(release[299] - press[299])))
 
         file.close()
 
