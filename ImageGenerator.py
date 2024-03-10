@@ -33,7 +33,7 @@ class ImageGenerator:
     Returns: N/A
     If a filename is not provided, the time since epoch is used
     """
-    def generate_image(self, dataframe, filename=int(time.time_ns()), saveFile=0):
+    def generate_image(self, dataframe, filename=int(time.time_ns()), saveFile=False):
         #get columns from passed dataframe
         try:
             self.data = dataframe.loc[:,["SENTENCE", "PRESS_TIME", "RELEASE_TIME"]]
@@ -162,7 +162,7 @@ class ImageGenerator:
                 img.save(savename)
                 logger.debug("Image generated for data. Stored under : " + savename)
 
-                if saveFile == 1:
+                if saveFile:
                     data_name = str(savename[:-4] + '.txt')
                     self.save_data(data_name)
 
