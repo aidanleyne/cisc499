@@ -153,9 +153,9 @@ class ImageGenerator:
         return -1
 
     """
-    Saves the data used to generate a phase image
+    Saves the phase image pair and potentially the used data
     Requires: saveFile (num) - if the file-data is to be saved
-    Returns:
+    Returns: N/A
     """
     def save(self, saveFile):
         for savename, img in self.images.items():
@@ -167,7 +167,9 @@ class ImageGenerator:
                     self.save_data(data_name)
 
     """
-    
+    Saves the data used to generate a phase image
+    Requires: savename - name the file will be saved under
+    Returns: N/A
     """
     def save_data(self, savename):
         #identify start-point in the data based on file being written
@@ -184,9 +186,12 @@ class ImageGenerator:
             for i in range(299):
                 file.write(str(int(release[i] - press[i])) + '\n')
                 file.write(str(int(press[i+1] - release[i])) + '\n')
-            file.write(str(int(release[299] - press[299])) + '\n')
+            file.write(str(int(release[299] - press[299])))
 
         file.close()
+
+        del press
+        del release
             
     """
     This function terminates the ImageGenerator object.
