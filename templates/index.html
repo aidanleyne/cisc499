@@ -53,6 +53,12 @@
                 context.fillRect(e, hz, 1, 1);
             }
           }
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", "/get_events", true);
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.send(JSON.stringify({data: events}));
+          
+
           /* download phase image
           var dataURL = canvas.toDataURL('image/png');
           var link = document.createElement('a');
