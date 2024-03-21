@@ -4,8 +4,8 @@ Generates images for all desktop data files in the /data folder.
 import argparse
 import multiprocessing
 from tqdm import tqdm as tq
-from ImageGenerator import ImageGenerator
-from DataLoader import TSVReader
+from utils.ImageGenerator import ImageGenerator
+from utils.DataLoader import TSVReader
 
 #set number of threads on system
 NUM_OF_CORES = 16
