@@ -15,7 +15,7 @@ class Vector:
         str - css of ints
     """
     def populate(self, str):
-        return [int(x) for x in str.split(',')]
+        return [float(x) for x in str.split(',')]
     
     """
     Compares two vectors. Defaults to self if only one passed
