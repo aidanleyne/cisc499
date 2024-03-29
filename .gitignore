@@ -9,3 +9,4 @@ data/
 images/
 cisc499.wiki/
 __pycache__/
+*.code-workspace

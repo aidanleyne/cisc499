@@ -4,9 +4,9 @@ import logging
 Vector class to store output from model
 """
 class Vector:
-    def __init__(self, id, str):
-        self.id = id
+    def __init__(self, str):
         self.arr = self.populate(str)
+        self.profile = None
 
     """
     Takes a comma seperated string of ints to populate the array
@@ -46,7 +46,7 @@ class Vector:
             return -1
         
         return vec.arr[pos] == value
-    
+
 def main():
     pass
 
