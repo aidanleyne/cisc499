@@ -5,10 +5,12 @@ from utility.lookup_box_utility import get_closest_vector
 
 app = Flask(__name__)
 
+#routes homepage to the index html file
 @app.route('/')
 def home():
     return render_template('index.html')
 
+#gets the events array from front end and sends to python file to be generated and saved
 @app.route('/get_events', methods=['POST'])
 def handle_data():
     data = request.get_json()
