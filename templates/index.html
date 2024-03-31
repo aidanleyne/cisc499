@@ -43,7 +43,9 @@
         var events = [];
         var image_generated = false
 
+        //generates the phase image
         function generate_image() {
+          //create the image to display on the site
           var canvas = document.getElementById('myCanvas');
           var context = canvas.getContext('2d');
           for (var hz = 0; hz <= 481; hz++) {
@@ -53,25 +55,15 @@
                 context.fillRect(e, hz, 1, 1);
             }
           }
+          //send the events as a JSON to the flask to be generated on the backend
           var xhr = new XMLHttpRequest();
           xhr.open("POST", "/get_events", true);
           xhr.setRequestHeader('Content-Type', 'application/json');
           xhr.send(JSON.stringify({data: events}));
-          
-
-          /* download phase image
-          var dataURL = canvas.toDataURL('image/png');
-          var link = document.createElement('a');
-          link.download = 'phase_image.png';
-          link.href = dataURL;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          */
-
           image_generated = true;
         }
 
+        //adds all keydown strokes to the events array
         document.getElementById('inputField').addEventListener('keydown', function(event) {
           var time = new Date().getTime();
           document.getElementById('keydownTime').textContent = time;
@@ -88,6 +80,7 @@
           }
         });
         
+        //adds all keyup strokes to the events array
         document.getElementById('inputField').addEventListener('keyup', function(event) {
           var time = new Date().getTime();
           document.getElementById('keyupTime').textContent = time;
