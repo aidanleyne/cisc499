@@ -1,5 +1,4 @@
 import numpy as np
-import logging
 import faiss
 from Vector import Vector
 
