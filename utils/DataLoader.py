@@ -389,7 +389,6 @@ class SQLWriter:
             except:
                 logger.error("Cannot connect to database : " + str(db))
                 return
-            
         return
 
     """
