@@ -3,6 +3,9 @@ import tensorflow_addons as tfa
 import os
 import numpy as np
 
+#select to silence or not
+OUTPUT_STATUS = 0
+
 recreated_model = tf.keras.Sequential([
     tf.keras.layers.LSTM(256, input_shape=(None, 1)),
     tf.keras.layers.Dense(128, activation=None),
@@ -20,7 +23,7 @@ recreated_model.load_weights(filename)
 
 def generate(filepath):
     data = _read_text_files(filepath)
-    return recreated_model.predict(data)[0]
+    return recreated_model.predict(data, verbose=OUTPUT_STATUS)[0]
 
 def _read_text_files(filepath):
     # Read the contents of the file, skipping the first line

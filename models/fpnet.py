@@ -3,6 +3,9 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_addons as tfa
 
+#select to silence or not
+OUTPUT_STATUS = 0
+
 # Recreate the model architecture
 recreated_model = tf.keras.Sequential([
     tf.keras.layers.Conv2D(filters=24, kernel_size=(1,3), activation='relu', input_shape=(481, 600, 1)),
@@ -44,4 +47,4 @@ def preprocess_image(image_path):
 def generate(filepath):
     img = preprocess_image(filepath)
     img = tf.expand_dims(img, axis=0)
-    return recreated_model.predict(img)[0]
+    return recreated_model.predict(img, verbose=OUTPUT_STATUS)[0]

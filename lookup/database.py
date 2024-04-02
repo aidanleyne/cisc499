@@ -1,6 +1,6 @@
 import numpy as np
 import faiss
-from User import Vector
+from lookup.User import Vector
 
 class Database:
     def __init__(self, dimension, arrs=None):

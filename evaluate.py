@@ -29,7 +29,9 @@ def main():
         name = img[img.find('\\') + 1 : img.find('_')]
         
         # make 256 array
-        arr = fpnet.generate(img).extend(taunet.generate(txt))
+        fp = fpnet.generate(img).tolist()
+        tn = taunet.generate(txt).tolist()
+        arr = fp + tn
 
         #create profile for the id
         pf = Profile(name)
@@ -38,8 +40,10 @@ def main():
         db.insert(arr, profile=pf)
 
     for img, txt in zip(img2, txt2):
-        #make the array
-        arr = fpnet.generate(img).extend(taunet.generate(txt))
+        # make 256 array
+        fp = fpnet.generate(img).tolist()
+        tn = taunet.generate(txt).tolist()
+        arr = fp + tn
 
         #get name to id the vector
         name = img[img.find('\\') + 1 : img.find('_')]
