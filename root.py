@@ -1,9 +1,12 @@
 from flask import Flask, render_template, request, jsonify
-from lookup.database import Database
-from utils.ImageGenerator import ImageGenerator
 import pandas as pd
+import numpy as np
 import base64
 import logging
+from utils.ImageGenerator import ImageGenerator
+from lookup.database import Database
+from lookup.User import Profile
+from models import taunet, fpnet
 
 ###LOGGING SETUP###
 logging.basicConfig(filename="flaskServer.log",
@@ -18,7 +21,15 @@ db = Database(256)
 ig = ImageGenerator('temp')
 logging.info("Resources set-up")
 
-IMG = None
+#generates the array based onf iles
+def generate_arr():
+    #generate arrays based on img and txt
+    fp = fpnet.generate('temp/temp.png').tolist()
+    tn = taunet.generate('temp/temp.txt').tolist()
+    
+    #combine the two arrays for 256-length
+    arr = np.array(fp + tn)
+    return (arr/np.linalg.norm(arr)).tolist()
 
 #routes homepage to the index html file
 @app.route('/')
@@ -28,27 +39,37 @@ def home():
 #gets the events array from front end and sends to python file to be generated and saved
 @app.route('/get_events', methods=['POST'])
 def handle_data():
+    #send user data to pandas df
     user_data = pd.DataFrame(request.get_json())
-    print(user_data)
     
     #create the phase image
     ig.compute(passed_data=user_data)
 
-    #generate arrays based on 
-
-    print("Received events from user typing")
-
-    #generate_images(myData, image_title)
-    #get_closest_vector(get_vector(image_title))
-
     return jsonify({'status': 'success'})
-
 
 @app.route('/get_image')
 def get_image():
     with open('temp/temp.png', 'rb') as image_file:
         encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
     return jsonify(image=encoded_string)
+
+@app.route('/add_user', methods=['POST'])
+def add_user():
+    id = request.json['id']
+    for vec in db.db.values():
+        if vec.profile is not None and vec.profile.id == id:
+            return jsonify({'status': 'exists'})
+        
+    arr = generate_arr()
+    pf = Profile(id)
+    db.insert(arr, profile=pf)
+    return jsonify({'status': 'added'})
+
+@app.route('/lookup', methods=['GET'])
+def lookup():
+    arr = generate_arr()
+    result = db.find(arr)
+    return jsonify({'user': str(db.db[result[0]].profile.id)})
 
 # Run the application
 if __name__ == '__main__':

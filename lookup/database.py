@@ -28,7 +28,7 @@ class Database:
         vec_arr = np.array(arr).astype('float32').reshape(1, -1)
         D, I = self.faiss.search(vec_arr, k)  # D is the distance, I is the index of the nearest neighbor
         
-        return I[0], D[0] # Returning index and distance of the most similar vector
+        return I[0][0], D[0][0] # Returning index and distance of the most similar vector
     
     """
     Inserts a new vector into the dict and faiss
@@ -36,10 +36,10 @@ class Database:
     Requires:
         arr - str arr to be added to db
     """
-    def insert(self, arr, str=False, profile=None):
+    def insert(self, arr, profile=None):
         #create new vector object based on arr-string
-        vec = Vector(arr, str)
-        if profile:
+        vec = Vector(arr)
+        if profile is not None:
             profile.add_vector(vec)
 
         #Add the new vector to the dict

@@ -76,8 +76,60 @@
               };
             })
             .catch(error => console.error('Error fetching the image:', error));
+          
+            askUserStatus();
         }
 
+        // Function to ask the user if they are new or returning
+        function askUserStatus() {
+          const userStatus = window.prompt('Are you a new or returning user? Type "new" or "returning".');
+          
+          if (userStatus === 'new') {
+            askForUserID();
+          } else if (userStatus === 'returning') {
+            lookupUser();
+          } else {
+            console.error('Invalid input. Please type "new" or "returning".');
+          }
+        }
+
+        // Function to ask for User ID for new users
+        function askForUserID() {
+          const userID = window.prompt('Please enter your ID:');
+          addUser(userID);
+        }
+
+        // Function to add a new user
+        function addUser(userID) {
+          fetch('/add_user', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: userID }),
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'exists') {
+              window.alert('This ID already exists. Please try another ID.');
+              askForUserID();
+            } else if (data.status === 'added') {
+              window.alert('You have been successfully added.');
+            }
+          })
+          .catch(error => console.error('Error adding the user:', error));
+        }
+
+        // Function to lookup returning user
+        function lookupUser() {
+          fetch('/lookup')
+            .then(response => response.json())
+            .then(data => {
+              window.alert('Your user ID is: ' + data.user);
+            })
+            .catch(error => console.error('Error looking up the user:', error));
+        }
+        
         //adds all keydown strokes to the events array
         document.getElementById('inputField').addEventListener('keydown', function(event) {
           var time = new Date().getTime();
@@ -111,7 +163,7 @@
               generateImage();
             } else {
               document.getElementById("eventsLeftText").innerHTML = `Type something: (300 events, ${300-eventLength} left)`
-              console.log(time, keyDown);
+              //console.log(time, keyDown);
             }
           } else {
             document.getElementById("eventsLeftText").innerHTML = "image generated"
