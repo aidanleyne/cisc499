@@ -90,13 +90,16 @@ class ImageGenerator:
     Requires: img - 0,1 for first or second image
     Returns: N/A
     """
-    def compute(self, start, filename, filenum):
+    def compute(self, start=0, filename='temp.png', filenum=0, passed_data=None):
         #create an image
         image = Image.new('L', (600, 481))
 
         #set start and end indicies
         sidx = start
         eidx = 300 + start
+
+        if passed_data is not None:
+            self.data = passed_data
 
         #make lists based on dataframe and indicies
         press = self.data['PRESS_TIME'][sidx : eidx].tolist()
@@ -118,8 +121,12 @@ class ImageGenerator:
                 image.putpixel(((x*2)+1, hz-20), int(release_pixel))
 
         #save image to dict
+        if passed_data is None:
             savename = str(self._PATH + '/' + str(filename[:-4]) + '_' + str(filenum) + '.png')
             self.images[savename] = image
+        else:
+            image.save(str('temp/' + filename))
+            self.save_data(str('temp/' + str(filename[:-4]) + '.txt'), multi=False)
 
         #memory management
         del press
@@ -171,10 +178,14 @@ class ImageGenerator:
     Requires: savename - name the file will be saved under
     Returns: N/A
     """
-    def save_data(self, savename):
-        #identify start-point in the data based on file being written
-        sidx = self.indexes[int(savename[-5:-4]) - 1]
-        eidx = 300 + sidx
+    def save_data(self, savename, multi=True):
+        if multi:
+            #identify start-point in the data based on file being written
+            sidx = self.indexes[int(savename[-5:-4]) - 1]
+            eidx = 300 + sidx
+        else:
+            sidx = 0
+            eidx = 300
 
         #make lists based on dataframe and indicies
         press = self.data['PRESS_TIME'][sidx : eidx].tolist()

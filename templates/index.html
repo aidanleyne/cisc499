@@ -29,7 +29,7 @@
     
     <body>
         <form style="text-align: center;">
-          <label for="inputField" id="eventsLeftText">Type something: (600 events)</label><br>
+          <label for="inputField" id="eventsLeftText">Type something: (300 events)</label><br>
           <input type="text" id="inputField" name="inputField">
         </form>
         
@@ -40,44 +40,63 @@
           <canvas id="myCanvas" width="600" height="481"></canvas>
         </div>
         <script>
-        var events = [];
-        var image_generated = false
+        var typingData = {
+          RELEASE_TIME : [],
+          PRESS_TIME : []
+        };
+        var eventLength = 0;
+        var image_generated = false;
+        var keyDown;
 
-        //generates the phase image
-        function generate_image() {
-          //create the image to display on the site
-          var canvas = document.getElementById('myCanvas');
-          var context = canvas.getContext('2d');
-          for (var hz = 0; hz <= 481; hz++) {
-            for (var e = 0; e < 600; e++) {
-                value = (Number(events[e])%(1000/(hz+20)))/(1000/(hz+20))*255
-                context.fillStyle = 'rgb(' + value + ',' + value + ',' + value + ')';
-                context.fillRect(e, hz, 1, 1);
-            }
-          }
+        //generates the phase image to display to the user
+        function generateImage() {
           //send the events as a JSON to the flask to be generated on the backend
           var xhr = new XMLHttpRequest();
           xhr.open("POST", "/get_events", true);
           xhr.setRequestHeader('Content-Type', 'application/json');
-          xhr.send(JSON.stringify({data: events}));
+          xhr.send(JSON.stringify(typingData));
           image_generated = true;
+
+          setTimeout(() => {
+            console.log("Generating Image...")
+          }, 500);
+
+          // Assuming '/get_image' is the Flask route that sends the base64-encoded image
+          fetch('/get_image')
+            .then(response => response.json()) // Assuming the response is JSON with a base64-encoded image
+            .then(data => {
+              const image = new Image();
+              // Assuming 'data.image' contains the base64-encoded string
+              image.src = 'data:image/png;base64,' + data.image;
+              image.onload = function() {
+                const canvas = document.getElementById('myCanvas');
+                const context = canvas.getContext('2d');
+                // Draw the image onto the canvas once it's loaded
+                context.drawImage(image, 0, 0);
+              };
+            })
+            .catch(error => console.error('Error fetching the image:', error));
         }
 
         //adds all keydown strokes to the events array
         document.getElementById('inputField').addEventListener('keydown', function(event) {
           var time = new Date().getTime();
           document.getElementById('keydownTime').textContent = time;
+          keyDown = time;
+          /*
           if(image_generated == false){
-            events.push(time);
-            if(events.length >= 600) {
-              generate_image();
+            typingData.PRESS_TIME.push(time);
+            length++;
+            if(length >= 300) {
+              generateImage();
             } else {
-              document.getElementById("eventsLeftText").innerHTML = `Type something: (600 events, ${600-events.length} left)`
-              console.log(events.length);
+              document.getElementById("eventsLeftText").innerHTML = `Type something: (600 events, ${600-length} left)`
+              console.log(length);
             }
           } else {
             document.getElementById("eventsLeftText").innerHTML = "image generated"
           }
+          */
         });
         
         //adds all keyup strokes to the events array
@@ -85,12 +104,17 @@
           var time = new Date().getTime();
           document.getElementById('keyupTime').textContent = time;
           if(image_generated == false){
-            events.push(time);
-            if(events.length >= 600) {
-              generate_image();
+            typingData.RELEASE_TIME.push(time);
+            typingData.PRESS_TIME.push(keyDown);
+            eventLength++;
+            if(eventLength == 300) {
+              generateImage();
             } else {
-              console.log(events.length);
+              document.getElementById("eventsLeftText").innerHTML = `Type something: (300 events, ${300-eventLength} left)`
+              console.log(time, keyDown);
             }
+          } else {
+            document.getElementById("eventsLeftText").innerHTML = "image generated"
           }
         });
         </script>
