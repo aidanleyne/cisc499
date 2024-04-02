@@ -1,6 +1,6 @@
 from glob import glob
 from lookup.database import Database
-from lookup.Profile import Profile
+from lookup.User import Profile
 from models import taunet, fpnet
 
 #define path used for evalutation folder

@@ -1,6 +1,6 @@
 import numpy as np
 import faiss
-from Profile import Vector
+from User import Vector
 
 class Database:
     def __init__(self, dimension, arrs=None):
