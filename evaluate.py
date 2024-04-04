@@ -50,7 +50,6 @@ def process_seconds(item):
 
     #find the indexes of the 
     idxs = db.find(arr, 100)[0]
-    print(idxs)
 
     rank = 1
     for match in idxs:
@@ -73,10 +72,10 @@ def main():
     pool = multiprocessing.Pool(processes=NUM_OF_THREADS)
 
     #get all the filenames
-    img1 = glob(PATH + '/*_1.png')[:100]
-    img2 = glob(PATH + '/*_2.png')[:100]
-    txt1 = glob(PATH + '/*_1.txt')[:100]
-    txt2 = glob(PATH + '/*_2.txt')[:100]
+    img1 = glob(PATH + '/*_1.png')
+    img2 = glob(PATH + '/*_2.png')
+    txt1 = glob(PATH + '/*_1.txt')
+    txt2 = glob(PATH + '/*_2.txt')
 
     #create dicts with images as keys and texts as pairs
     dict1 = dict(zip(img1, txt1))
