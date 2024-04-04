@@ -1,6 +1,7 @@
 from glob import glob
 from tqdm import tqdm
 import numpy as np
+import os
 import multiprocessing
 from utils.database import Database
 from utils.User import Profile
@@ -58,12 +59,14 @@ def process_seconds(item):
                 ranks[1]+=1
                 ranks[10]+=1
                 ranks[100]+=1
+                break
             elif rank > 1 and rank < 11:
                 ranks[10]+=1
                 ranks[100]+=1
+                break
             else:
                 ranks[100]+=1
-            continue
+                break
         else:
             rank+=1
 
@@ -71,11 +74,25 @@ def main():
     #create multiprocessing pool
     pool = multiprocessing.Pool(processes=NUM_OF_THREADS)
 
-    #get all the filenames
-    img1 = glob(PATH + '/*_1.png')
-    img2 = glob(PATH + '/*_2.png')
-    txt1 = glob(PATH + '/*_1.txt')
-    txt2 = glob(PATH + '/*_2.txt')
+    # Step 1: Get all the .png or .txt files to extract unique numbers
+    all_png_files = glob(os.path.join(PATH, '*_1.png'))  # Or use '*_2.png' if you prefer
+
+    # Step 2: Extract unique numbers from these files
+    unique_numbers = sorted(set([os.path.basename(file).split('_')[0] for file in all_png_files]))
+
+    # Step 3: Limit to the first 100 unique numbers
+    unique_numbers = unique_numbers[:100]
+
+    # Step 4: Find corresponding files for each unique number
+    img1, img2, txt1, txt2 = [], [], [], []
+    for number in unique_numbers:
+        img1.append(glob(os.path.join(PATH, f'{number}_keystrokes_1.png'))[0])
+        img2.append(glob(os.path.join(PATH, f'{number}_keystrokes_2.png'))[0])
+        txt1.append(glob(os.path.join(PATH, f'{number}_keystrokes_1.txt'))[0])
+        txt2.append(glob(os.path.join(PATH, f'{number}_keystrokes_2.txt'))[0])
+
+    print(img1)
+    print(img2)
 
     #create dicts with images as keys and texts as pairs
     dict1 = dict(zip(img1, txt1))
