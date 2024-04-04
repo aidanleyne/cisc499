@@ -1,6 +1,6 @@
 import numpy as np
 import faiss
-from lookup.User import Vector
+from utils.User import Vector
 
 class Database:
     def __init__(self, dimension, arrs=None):
@@ -27,8 +27,11 @@ class Database:
     def find(self, arr, k=1):
         vec_arr = np.array(arr).astype('float32').reshape(1, -1)
         D, I = self.faiss.search(vec_arr, k)  # D is the distance, I is the index of the nearest neighbor
+
+        if k == 1:
+            return I[0][0], D[0][0]
         
-        return I[0][0], D[0][0] # Returning index and distance of the most similar vector
+        return I[0], D[0] # Returning index and distance of the most similar vector
     
     """
     Inserts a new vector into the dict and faiss

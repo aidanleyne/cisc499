@@ -4,8 +4,8 @@ import numpy as np
 import base64
 import logging
 from utils.ImageGenerator import ImageGenerator
-from lookup.database import Database
-from lookup.User import Profile
+from utils.database import Database
+from utils.User import Profile
 from models import taunet, fpnet
 
 ###LOGGING SETUP###

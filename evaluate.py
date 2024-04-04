@@ -2,8 +2,8 @@ from glob import glob
 from tqdm import tqdm
 import numpy as np
 import multiprocessing
-from lookup.database import Database
-from lookup.User import Profile
+from utils.database import Database
+from utils.User import Profile
 from models import taunet, fpnet
 
 #define path used for evalutation folder
@@ -50,6 +50,7 @@ def process_seconds(item):
 
     #find the indexes of the 
     idxs = db.find(arr, 100)[0]
+    print(idxs)
 
     rank = 1
     for match in idxs:
@@ -67,30 +68,30 @@ def process_seconds(item):
         else:
             rank+=1
 
-
 def main():
     #create multiprocessing pool
     pool = multiprocessing.Pool(processes=NUM_OF_THREADS)
 
     #get all the filenames
-    img1 = glob(PATH + '/*_1.png')
-    img2 = glob(PATH + '/*_2.png')
-    txt1 = glob(PATH + '/*_1.txt')
-    txt2 = glob(PATH + '/*_2.txt')
+    img1 = glob(PATH + '/*_1.png')[:100]
+    img2 = glob(PATH + '/*_2.png')[:100]
+    txt1 = glob(PATH + '/*_1.txt')[:100]
+    txt2 = glob(PATH + '/*_2.txt')[:100]
 
     #create dicts with images as keys and texts as pairs
     dict1 = dict(zip(img1, txt1))
     dict2 = dict(zip(img2, txt2))
 
-    """
+    
     # one image at a time
     for item in tqdm(dict1.items()):
         process_firsts(item)
 
-    for item in tqdm(dict2.items)):
+    for item in tqdm(dict2.items()):
         process_seconds(item)
-    """
+    
 
+    """
     # pooled processing
     with tqdm(total=len(dict1)) as pbar:
         for _ in pool.imap_unordered(process_firsts, dict1.items()):
@@ -102,6 +103,7 @@ def main():
     
     pool.close()
     pool.join()
+    """
 
     for rank in ranks:
         print("rank :", rank, ":", ranks[rank], "---", ranks[rank]/len(img1)) 
