@@ -1,6 +1,8 @@
 import numpy as np
+import pandas as pd
 import faiss
 from utils.User import Vector
+from utils.DataLoader import SQLReader, SQLWriter
 
 class Database:
     def __init__(self, dimension, arrs=None):
@@ -12,10 +14,29 @@ class Database:
             self.faiss.add(arrs)
 
     def import_database(self):
-        pass
+        # Import vector data from MySQL
+        reader = SQLReader(server="localhost", db="your_db_name", username="your_username", password="your_password")
+        
+        for tablename, dataframe in reader.data.items():
+            if tablename.startswith("vector_"):
+                key = int(tablename.split("_")[1])  # Assuming the table name format is "vector_{key}"
+                vec = dataframe.to_numpy().flatten()  # Assuming each table contains a single vector
+                self.insert(vec)  # Reusing the insert method to add vectors to both self.db and self.faiss
+        
+        #Load the FAISS index from a file
+        faiss_index_path = "data/faiss_database"
+        self.faiss = faiss.read_index(faiss_index_path)
 
     def export_database(self):
-        pass
+        writer = SQLWriter(db="your_db_name", username="your_username", password="your_password", host="your_host")
+        for key, vec in self.db.items():
+            df = pd.DataFrame(vec.arr if hasattr(vec, 'arr') else vec).T  # Ensure vec is convertible to DataFrame
+            tablename = f'vector_{key}'
+            writer.write(df, tablename)
+        
+        # Serialize FAISS index to disk
+        faiss_index_path = "data/faiss_database"
+        faiss.write_index(self.faiss, faiss_index_path)
 
     """
     Finds the closest k matches to the passed array

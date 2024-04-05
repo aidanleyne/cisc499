@@ -6,6 +6,7 @@ import csv
 import pandas as pd
 import warnings
 import mysql.connector as sql
+from sqlalchemy import create_engine
 from tqdm import tqdm as tq
 
 ###LOGGING SETUP###
@@ -357,59 +358,42 @@ Class for writing files to sql table
 @TODO. This may require SQLAlchemy implementation.
 """
 class SQLWriter:
-    def __init__(self, server="localhost", db="mysql", username="root", psswd="", new=False):
-        #create new db
+    def __init__(self, db, username="root", password="", host="localhost", port=3306, new=False):
+        # Connection string format for SQLAlchemy
+        conn_str = f'mysql+mysqlconnector://{username}:{password}@{host}:{port}/{db}'
+        self.engine = create_engine(conn_str)
+
         if new:
+            # If the database is new, create it. This requires a separate connection to the MySQL server without specifying the database.
             try:
-                #connect to the server & open cursor
-                self.db = sql.connect(user=username, password=psswd, host=server)
-                self.cursor = self.db.cursor()
-                logger.info("Connected to %s" + str(server))
-            except:
-                logger.error("Cannot connect to databse : " + str(db))
-                return
-
-            try:
-                self.cursor.execute('CREATE DATABASE IF NOT EXISTS ' + str(db) + ';')
-                self.db.commit()
-                logger.info("New database -" + str(db) + "- created succesfully...")
-                self.cursor.execute('USE ' + str(db) + ';')
-                logger.info("Switched to databse : " + str(db))
-            except:
-                logger.error("Could not create database : " + str(db))
-                return
-
-        #connect to existing db
-        else:
-            try:
-                #connect to SQLServer & open a cursor
-                self.db = sql.connect(user=username, password=psswd, host=server, database=db)
-                self.cursor = self.db.cursor()
-                logger.debug("Connected to databse : " + str(db))
-            except:
-                logger.error("Cannot connect to database : " + str(db))
-                return
-        return
+                temp_engine = create_engine(f'mysql+mysqlconnector://{username}:{password}@{host}:{port}/')
+                with temp_engine.connect() as conn:
+                    conn.execute(f"CREATE DATABASE IF NOT EXISTS {db}")
+                    logger.info(f"New database '{db}' created successfully.")
+            except Exception as e:
+                logger.error(f"Failed to create new database '{db}'. Error: {e}")
+                
+        logger.info(f"Connected to database '{db}' on host '{host}'.")
 
     """
     Writes passed dataframe to open SQL database
     Requires: df - pandas dataframe, tablename - str for desired name of table, idx - indexing
     Returns: None
     """
-    def write(self, df, tablename, idx=False):
-        df.to_sql(tablename, if_exitsts='replace', index=idx)
-        return
+    def write(self, df, tablename, if_exists='replace', index=False):
+        try:
+            df.to_sql(name=tablename, con=self.engine, if_exists=if_exists, index=index)
+            logger.info(f"Data successfully written to table '{tablename}'.")
+        except Exception as e:
+            logger.error(f"Failed to write data to table '{tablename}'. Error: {e}")
     
     """
-    Closes the cursor and connection to the database.
+    Closes the connection to the database.
     Requires: None
     Returns: None
     """
     def close(self):
-        self.cursor.close()
-        logger.info("**** Cursor Closed. *****")
-        self.db.close()
-        logger.info("**** Connection Closed. ****\n====END OF LOG====\n")
+        logger.info("SQLWriter is closed.")
 
 """
 Class for laoding .sql file to sql database

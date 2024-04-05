@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import base64
 import logging
+import atexit
 from utils.ImageGenerator import ImageGenerator
 from utils.database import Database
 from utils.User import Profile
@@ -30,6 +31,15 @@ def generate_arr():
     #combine the two arrays for 256-length
     arr = np.array(fp + tn)
     return (arr/np.linalg.norm(arr)).tolist()
+
+#closes db and preforms other exit tasks
+def exit_handler():
+    print("Processing Exit Tasks...")
+    db.export_database()
+    print("Program is exiting.")
+    
+#handle program exit
+atexit.register(exit_handler)
 
 #routes homepage to the index html file
 @app.route('/')
