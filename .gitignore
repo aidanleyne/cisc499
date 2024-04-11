@@ -1,3 +1,4 @@
+#Ignore
 *.csv
 *.log
 *.txt
@@ -11,3 +12,7 @@ cisc499.wiki/
 __pycache__/
 *.code-workspace
 test.py
+
+# Allow
+!/temp/temp.png
+!/temp/temp.txt

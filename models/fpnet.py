@@ -1,10 +1,16 @@
 import os
-import numpy as np
+import logging
+logging.disable(logging.WARNING)
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import tensorflow as tf
 import tensorflow_addons as tfa
 
 #select to silence or not
 OUTPUT_STATUS = 0
+
+# supress tensorflow warning messages
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+
 
 # Recreate the model architecture
 recreated_model = tf.keras.Sequential([

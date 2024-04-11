@@ -299,7 +299,7 @@ class TSVWriter:
 """
 Class for loading files from .sql format
 """
-class SQLReader():
+class SQLReader:
     def __init__(self, server="localhost", db="mysql", username="root", psswd=""):
         logger.debug("====START OF LOG====") #start of logging session
         self.data = {}
