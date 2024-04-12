@@ -59,7 +59,7 @@
         var eventLength = 0;
         var image_generated = false;
         var keyDown;
-        var buttonStatus = None;
+        var buttonStatus = null;
 
         //generates the phase image to display to the user
         function generateImage() {
@@ -110,7 +110,7 @@
               } else if (fieldValue === 'returning') {
                 lookupUser();
               }
-              buttonStatus = None;
+              buttonStatus = null;
           } else if (buttonStatus == "registerUser") {
             fetch('/add_user', {
               method: 'POST',
@@ -131,7 +131,7 @@
               }
             })
             .catch(error => console.error('Error adding the user:', error));
-            buttonStatus = None;
+            buttonStatus = null;
           }
         });
 
