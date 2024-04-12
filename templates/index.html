@@ -96,6 +96,7 @@
         //asks the user if they are new or returning
         function CheckUserStatus() {
           document.getElementById("eventsLeftText").innerHTML = 'Are you a new or returning user? Type "new" or "returning".';
+          document.getElementById("eventsLeftText").style.color = "#333";
           document.getElementById("inputField").value = '';
           document.getElementById("formButtonWrapper").style.display = 'block';
           buttonStatus = "userStatus";
@@ -124,10 +125,11 @@
             .then(data => {
               if (data.status === 'exists') {
                 document.getElementById("eventsLeftText").innerHTML = 'This ID already exists. Please try another ID.';
+                document.getElementById("eventsLeftText").style.color = "red";
                 document.getElementById("inputField").value = '';
-                askForUserID();
               } else if (data.status === 'added') {
-                document.getElementById("eventsLeftText").innerHTML = 'You have been successfully added.';
+                document.getElementById("eventsLeftText").innerHTML = 'You have been successfully added. Refresh page to try again';
+                document.getElementById("eventsLeftText").style.color = "#333";
                 document.getElementById("inputField").value = '';
                 document.getElementById("formButtonWrapper").style.display = 'none';
               }
@@ -148,6 +150,7 @@
         //if the user is new, this function will ask the user for ID and add them
         function askForUserID() {
           document.getElementById("eventsLeftText").innerHTML = 'Please enter your ID:';
+          document.getElementById("eventsLeftText").style.color = "#333";
           document.getElementById("inputField").value = '';
           document.getElementById("formButtonWrapper").style.display = 'block';
           buttonStatus = "registerUser";
@@ -158,7 +161,8 @@
           fetch('/lookup')
             .then(response => response.json())
             .then(data => {
-              document.getElementById("eventsLeftText").innerHTML = 'Your user ID is: ' + data.user;
+              document.getElementById("eventsLeftText").innerHTML = 'Your user ID is: ' + data.user + '. Refresh page to try again.';
+              document.getElementById("eventsLeftText").style.color = "#333";
               document.getElementById("inputField").style.display = 'none';
               document.getElementById("formButtonWrapper").style.display = 'none';
               buttonStatus = null
@@ -187,6 +191,7 @@
               generateImage();
             } else {
               document.getElementById("eventsLeftText").innerHTML = `Type something: (300 events, ${300-eventLength} left)`
+              document.getElementById("eventsLeftText").style.color = "#333";
               //console.log(time, keyDown);
             }
           }
