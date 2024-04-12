@@ -112,6 +112,7 @@
               }
               buttonStatus = null;
           } else if (buttonStatus == "registerUser") {
+            alert('here1')
             fetch('/add_user', {
               method: 'POST',
               headers: {
@@ -126,6 +127,7 @@
                 document.getElementById("inputField").value = '';
                 askForUserID();
               } else if (data.status === 'added') {
+                alert('here2')
                 document.getElementById("eventsLeftText").innerHTML = 'You have been successfully added.';
                 document.getElementById("inputField").value = '';
                 document.getElementById("formButtonWrapper").style.display = 'none';
@@ -133,6 +135,16 @@
             })
             .catch(error => console.error('Error adding the user:', error));
             buttonStatus = null;
+            alert('here3')
+          }
+        });
+
+        document.getElementById("inputField").addEventListener('keydown', function(event) {
+          if(buttonStatus != null) {
+            if(event.key == 'Enter') {
+              event.preventDefault();
+              document.getElementById("formButton").click();
+            }
           }
         });
 
@@ -152,6 +164,7 @@
               document.getElementById("eventsLeftText").innerHTML = 'Your user ID is: ' + data.user;
               document.getElementById("inputField").style.display = 'none';
               document.getElementById("formButtonWrapper").style.display = 'none';
+              buttonStatus = null
             })
             .catch(error => console.error('Error looking up the user:', error));
         }
