@@ -122,7 +122,8 @@
             .then(response => response.json())
             .then(data => {
               if (data.status === 'exists') {
-                window.alert('This ID already exists. Please try another ID.');
+                document.getElementById("eventsLeftText").innerHTML = 'This ID already exists. Please try another ID.';
+                document.getElementById("inputField").value = '';
                 askForUserID();
               } else if (data.status === 'added') {
                 document.getElementById("eventsLeftText").innerHTML = 'You have been successfully added.';
