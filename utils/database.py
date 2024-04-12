@@ -7,7 +7,9 @@ from utils.DataLoader import SQLReader, SQLWriter
 class Database:
     def __init__(self, dimension, arrs=None):
         self.db = {}
+        self.salted_db = {}
         self.faiss = faiss.IndexFlatL2(dimension)  # Using L2 distance for similarity
+        self.sfaiss = faiss.IndexFlatL2(dimension)
 
         #load in preset arrays
         if arrs:
@@ -24,19 +26,19 @@ class Database:
                 self.insert(vec)  # Reusing the insert method to add vectors to both self.db and self.faiss
         
         #Load the FAISS index from a file
-        faiss_index_path = "data/faiss_database"
-        self.faiss = faiss.read_index(faiss_index_path)
+        self.faiss = faiss.read_index("data/faiss_database")
+        self.sfaiss.read_index("data/faiss_database_salted")
 
     def export_database(self):
-        writer = SQLWriter(db="your_db_name", username="your_username", password="your_password", host="your_host")
+        writer = SQLWriter(db="unsalted", username="root", password="root", host="your_host")
         for key, vec in self.db.items():
             df = pd.DataFrame(vec.arr if hasattr(vec, 'arr') else vec).T  # Ensure vec is convertible to DataFrame
             tablename = f'vector_{key}'
             writer.write(df, tablename)
         
         # Serialize FAISS index to disk
-        faiss_index_path = "data/faiss_database"
-        faiss.write_index(self.faiss, faiss_index_path)
+        faiss.write_index(self.faiss, "data/faiss_database")
+        faiss.write_index(self.sfaiss, "data/faiss_database_salted")
 
     """
     Finds the closest k matches to the passed array
@@ -47,12 +49,13 @@ class Database:
     """
     def find(self, arr, k=1):
         vec_arr = np.array(arr).astype('float32').reshape(1, -1)
-        D, I = self.faiss.search(vec_arr, k)  # D is the distance, I is the index of the nearest neighbor
+        U_D, U_I = self.faiss.search(vec_arr, k)  # D is the distance, I is the index of the nearest neighbor
+        S_D, S_I = self.sfaiss.search(vec_arr, k) #search salted database
 
         if k == 1:
-            return I[0][0], D[0][0]
+            return (U_I[0][0], U_D[0][0]), (S_D[0][0], S_I[0][0])
         
-        return I[0], D[0] # Returning index and distance of the most similar vector
+        return (U_I[0], U_D[0]), (S_D[0], S_I[0]) # Returning index and distance of the most similar vector
     
     """
     Inserts a new vector into the dict and faiss
@@ -68,12 +71,14 @@ class Database:
 
         #Add the new vector to the dict
         self.db[self.faiss.ntotal] = vec
+        self.db[self.sfiass.ntotal] = vec
 
         # Convert the array to a NumPy array and ensure it is two-dimensional
         new_vector_arr = np.array(vec.arr).astype('float32').reshape(1, -1)
         
         # Add the new vector to the FAISS index
         self.faiss.add(new_vector_arr)
+        self.sfaiss.add(new_vector_arr)
 
 def main():
     test = np.random.random((100000, 256)).astype('float32')

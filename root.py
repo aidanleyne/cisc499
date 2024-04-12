@@ -82,10 +82,17 @@ def add_user():
 def lookup():
     arr = generate_arr()
     result = db.find(arr)
-    id = result[0]
+    id = result[0][0]
+    id_salted = result[1][0]
     if id > -1:
-        return jsonify({'user': str(db.db[id].profile.id)})
-    return jsonify({'user' : 'None'})
+        return jsonify({
+            'unsalted': str(db.db[id].profile.id),
+            'salted' : str(db.salted_db[id_salted].profile.id)
+            })
+    return jsonify({
+        'unsalted' : 'None',
+        'salted' : 'None'
+        })
 
 # Run the application
 if __name__ == '__main__':

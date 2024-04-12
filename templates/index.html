@@ -161,7 +161,8 @@
           fetch('/lookup')
             .then(response => response.json())
             .then(data => {
-              document.getElementById("eventsLeftText").innerHTML = 'Your user ID is: ' + data.user + '. Refresh page to try again.';
+              document.getElementById("eventsLeftText").innerHTML = 'Your unsalted user ID is: ' + data.unsalted + '. Refresh page to try again.';
+              document.getElementById("eventsLeftText").innerHTML = 'Your salted user ID is: ' + data.salted + '. Refresh page to try again.';
               document.getElementById("eventsLeftText").style.color = "#333";
               document.getElementById("inputField").style.display = 'none';
               document.getElementById("formButtonWrapper").style.display = 'none';
