@@ -37,10 +37,10 @@
     </head>
     
     <body>
-        <form style="text-align: center;">
+        <div style="text-align: center;">
           <label for="inputField" id="eventsLeftText">Type something: (300 events)</label><br>
           <input type="text" id="inputField" name="inputField">
-        </form>
+        </div>
         <div id="formButtonWrapper">
           <button type="button" id="formButton">Submit</button>
         </div>
@@ -98,21 +98,21 @@
           document.getElementById("eventsLeftText").innerHTML = 'Are you a new or returning user? Type "new" or "returning".';
           document.getElementById("inputField").value = '';
           document.getElementById("formButtonWrapper").style.display = 'block';
-          buttonStatus = "userStatus"
+          buttonStatus = "userStatus";
         }
 
         document.getElementById('formButton').addEventListener('click', function(event) {
-          fieldValue = document.getElementById("inputField").value
+          fieldValue = document.getElementById("inputField").value;
           if(buttonStatus == "userStatus"){
-              console.log(document.getElementById("inputField").innerHTML)
               if (fieldValue === 'new') {
+                buttonStatus = null;
                 askForUserID();
               } else if (fieldValue === 'returning') {
+                buttonStatus = null;
                 lookupUser();
               }
-              buttonStatus = null;
           } else if (buttonStatus == "registerUser") {
-            alert('here1')
+            buttonStatus = null;
             fetch('/add_user', {
               method: 'POST',
               headers: {
@@ -127,15 +127,12 @@
                 document.getElementById("inputField").value = '';
                 askForUserID();
               } else if (data.status === 'added') {
-                alert('here2')
                 document.getElementById("eventsLeftText").innerHTML = 'You have been successfully added.';
                 document.getElementById("inputField").value = '';
                 document.getElementById("formButtonWrapper").style.display = 'none';
               }
             })
             .catch(error => console.error('Error adding the user:', error));
-            buttonStatus = null;
-            alert('here3')
           }
         });
 
