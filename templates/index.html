@@ -24,6 +24,15 @@
             margin-bottom: 15px;
             text-align: center;
           }
+          #formButtonWrapper {
+            text-align: center;
+            display: none;
+          }
+          #formButton {
+            width: 100px;
+            height: 30px;
+            margin: 30px;
+          }
         </style>
     </head>
     
@@ -32,6 +41,9 @@
           <label for="inputField" id="eventsLeftText">Type something: (300 events)</label><br>
           <input type="text" id="inputField" name="inputField">
         </form>
+        <div id="formButtonWrapper">
+          <button type="button" id="formButton">Submit</button>
+        </div>
         
         <p>Keydown Time: <span id="keydownTime"></span></p>
         <p>Keyup Time: <span id="keyupTime"></span></p>
@@ -47,6 +59,7 @@
         var eventLength = 0;
         var image_generated = false;
         var keyDown;
+        var buttonStatus = None;
 
         //generates the phase image to display to the user
         function generateImage() {
@@ -61,101 +74,101 @@
             console.log("Generating Image...")
           }, 500);
 
-          // Assuming '/get_image' is the Flask route that sends the base64-encoded image
+          //gets the phaseimage generated on the sever side
           fetch('/get_image')
-            .then(response => response.json()) // Assuming the response is JSON with a base64-encoded image
+            .then(response => response.json())
             .then(data => {
               const image = new Image();
-              // Assuming 'data.image' contains the base64-encoded string
               image.src = 'data:image/png;base64,' + data.image;
               image.onload = function() {
+                //adds the image to this canvas object
                 const canvas = document.getElementById('myCanvas');
                 const context = canvas.getContext('2d');
-                // Draw the image onto the canvas once it's loaded
                 context.drawImage(image, 0, 0);
               };
             })
             .catch(error => console.error('Error fetching the image:', error));
-          
-            askUserStatus();
+
+            //once we get the phase image and its loaded, we will ask the user their status
+            CheckUserStatus();
         }
 
-        // Function to ask the user if they are new or returning
-        function askUserStatus() {
-          const userStatus = window.prompt('Are you a new or returning user? Type "new" or "returning".');
-          
-          if (userStatus === 'new') {
-            askForUserID();
-          } else if (userStatus === 'returning') {
-            lookupUser();
-          } else {
-            console.error('Invalid input. Please type "new" or "returning".');
+        //asks the user if they are new or returning
+        function CheckUserStatus() {
+          document.getElementById("eventsLeftText").innerHTML = 'Are you a new or returning user? Type "new" or "returning".';
+          document.getElementById("inputField").value = '';
+          document.getElementById("formButtonWrapper").style.display = 'block';
+          buttonStatus = "userStatus"
+        }
+
+        document.getElementById('formButton').addEventListener('click', function(event) {
+          fieldValue = document.getElementById("inputField").value
+          if(buttonStatus == "userStatus"){
+              console.log(document.getElementById("inputField").innerHTML)
+              if (fieldValue === 'new') {
+                askForUserID();
+              } else if (fieldValue === 'returning') {
+                lookupUser();
+              }
+              buttonStatus = None;
+          } else if (buttonStatus == "registerUser") {
+            fetch('/add_user', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ id: fieldValue }),
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.status === 'exists') {
+                window.alert('This ID already exists. Please try another ID.');
+                askForUserID();
+              } else if (data.status === 'added') {
+                document.getElementById("eventsLeftText").innerHTML = 'You have been successfully added.';
+                document.getElementById("inputField").value = '';
+                document.getElementById("formButtonWrapper").style.display = 'none';
+              }
+            })
+            .catch(error => console.error('Error adding the user:', error));
+            buttonStatus = None;
           }
-        }
+        });
 
-        // Function to ask for User ID for new users
+        //if the user is new, this function will ask the user for ID and add them
         function askForUserID() {
-          const userID = window.prompt('Please enter your ID:');
-          addUser(userID);
+          document.getElementById("eventsLeftText").innerHTML = 'Please enter your ID:';
+          document.getElementById("inputField").value = '';
+          document.getElementById("formButtonWrapper").style.display = 'block';
+          buttonStatus = "registerUser";
         }
 
-        // Function to add a new user
-        function addUser(userID) {
-          fetch('/add_user', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id: userID }),
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.status === 'exists') {
-              window.alert('This ID already exists. Please try another ID.');
-              askForUserID();
-            } else if (data.status === 'added') {
-              window.alert('You have been successfully added.');
-            }
-          })
-          .catch(error => console.error('Error adding the user:', error));
-        }
-
-        // Function to lookup returning user
+        //if the user indicated they are returning this function will try to find them
         function lookupUser() {
           fetch('/lookup')
             .then(response => response.json())
             .then(data => {
-              window.alert('Your user ID is: ' + data.user);
+              document.getElementById("eventsLeftText").innerHTML = 'Your user ID is: ' + data.user;
+              document.getElementById("inputField").style.display = 'none';
+              document.getElementById("formButtonWrapper").style.display = 'none';
             })
             .catch(error => console.error('Error looking up the user:', error));
         }
         
         //adds all keydown strokes to the events array
         document.getElementById('inputField').addEventListener('keydown', function(event) {
-          var time = new Date().getTime();
-          document.getElementById('keydownTime').textContent = time;
-          keyDown = time;
-          /*
-          if(image_generated == false){
-            typingData.PRESS_TIME.push(time);
-            length++;
-            if(length >= 300) {
-              generateImage();
-            } else {
-              document.getElementById("eventsLeftText").innerHTML = `Type something: (600 events, ${600-length} left)`
-              console.log(length);
-            }
-          } else {
-            document.getElementById("eventsLeftText").innerHTML = "image generated"
+          if (image_generated == false){
+            var time = new Date().getTime();
+            document.getElementById('keydownTime').textContent = time;
+            keyDown = time;
           }
-          */
         });
         
         //adds all keyup strokes to the events array
         document.getElementById('inputField').addEventListener('keyup', function(event) {
-          var time = new Date().getTime();
-          document.getElementById('keyupTime').textContent = time;
           if(image_generated == false){
+            var time = new Date().getTime();
+            document.getElementById('keyupTime').textContent = time;
             typingData.RELEASE_TIME.push(time);
             typingData.PRESS_TIME.push(keyDown);
             eventLength++;
@@ -165,8 +178,6 @@
               document.getElementById("eventsLeftText").innerHTML = `Type something: (300 events, ${300-eventLength} left)`
               //console.log(time, keyDown);
             }
-          } else {
-            document.getElementById("eventsLeftText").innerHTML = "image generated"
           }
         });
         </script>

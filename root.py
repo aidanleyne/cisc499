@@ -57,12 +57,14 @@ def handle_data():
 
     return jsonify({'status': 'success'})
 
+#API call to send the image to be displayed on the frontend
 @app.route('/get_image')
 def get_image():
     with open('temp/temp.png', 'rb') as image_file:
         encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
     return jsonify(image=encoded_string)
 
+#adds new user to the database
 @app.route('/add_user', methods=['POST'])
 def add_user():
     id = request.json['id']
@@ -74,6 +76,7 @@ def add_user():
     pf = Profile(id)
     db.insert(arr, profile=pf)
     return jsonify({'status': 'added'})
+
 
 @app.route('/lookup', methods=['GET'])
 def lookup():
