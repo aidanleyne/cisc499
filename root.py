@@ -1,3 +1,4 @@
+#!/bin/env/python3
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import numpy as np
