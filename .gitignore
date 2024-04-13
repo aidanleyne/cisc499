@@ -1,3 +1,4 @@
+#Ignore
 *.csv
 *.log
 *.txt
@@ -5,8 +6,15 @@
 *.sql
 *.jpg
 *.png
-data/
-images/
+images*/
+allImages/
+evaluationImages/
+training_data/
 cisc499.wiki/
 __pycache__/
 *.code-workspace
+test.py
+
+# Allow
+!/temp/temp.png
+!/temp/temp.txt

@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 """
 Generates images for all desktop data files in the /data folder.
 """
