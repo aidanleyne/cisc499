@@ -6,8 +6,10 @@
 *.sql
 *.jpg
 *.png
-data/
-images/
+images*/
+allImages/
+evaluationImages/
+training_data/
 cisc499.wiki/
 __pycache__/
 *.code-workspace

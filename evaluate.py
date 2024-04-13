@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from glob import glob
 from tqdm import tqdm
 import numpy as np

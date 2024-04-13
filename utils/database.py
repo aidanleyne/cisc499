@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import faiss
-from utils.User import Vector
+from utils.User import Vector, Profile
 from utils.DataLoader import SQLReader, SQLWriter
 
 class Database:
@@ -15,26 +15,76 @@ class Database:
         if arrs:
             self.faiss.add(arrs)
 
+    """
+    Imports the databases to their respective locations
+    Returns: N/A
+    Requires: N/A
+    """
     def import_database(self):
         # Import vector data from MySQL
-        reader = SQLReader(server="localhost", db="your_db_name", username="your_username", password="your_password")
-        
-        for tablename, dataframe in reader.data.items():
-            if tablename.startswith("vector_"):
-                key = int(tablename.split("_")[1])  # Assuming the table name format is "vector_{key}"
-                vec = dataframe.to_numpy().flatten()  # Assuming each table contains a single vector
-                self.insert(vec)  # Reusing the insert method to add vectors to both self.db and self.faiss
-        
-        #Load the FAISS index from a file
-        self.faiss = faiss.read_index("data/faiss_database")
-        self.sfaiss.read_index("data/faiss_database_salted")
+        reader = SQLReader(server="localhost", db="cisc499", uname="integration", psswd="cisc499")
+        cursor = reader.cursor
 
+        #read the database for salted vectors
+        cursor.execute("SELECT position, user_id, array FROM salted_vectors")
+        data = cursor.fetchall()
+
+        for position, profile_id, array_str in data:
+            arr = list(map(float, array_str.split(',')))
+            vec = Vector(arr)
+            self.salted_db[position] = vec
+            pf = Profile(profile_id)
+            pf.add_vector(vec)
+
+        #read the database for unsalted vectors
+        reader.connection.commit()
+        cursor.execute("SELECT position, user_id, array FROM unsalted_vectors")
+        data = cursor.fetchall()
+
+        for position, profile_id, array_str in data:
+            arr = list(map(float, array_str.split(',')))
+            vec = Vector(arr)
+            self.db[position] = vec
+            pf = Profile(profile_id)
+            pf.add_vector(vec)
+
+        reader.close()
+
+        #Load the FAISS index from a file
+        try:
+            self.faiss = faiss.read_index("data/faiss_database")
+        except:
+            print("No unsalted database present.")
+
+        try:
+            self.sfaiss = faiss.read_index("data/faiss_database_salted")
+        except:
+            print("No salted database present.")
+
+    """
+    Exports the databases to their respective locations
+    Returns: N/A
+    Requires: N/A
+    """
     def export_database(self):
-        writer = SQLWriter(db="unsalted", username="root", password="root", host="your_host")
+        writer = SQLWriter(server="localhost", db="cisc499", uname="integration", psswd="cisc499")
+        conn = writer.connection
+        cursor = writer.cursor
+
+        for key, vec in self.salted_db.items():
+            array_str = ','.join(map(str, vec.arr))
+            query = "INSERT IGNORE INTO salted_vectors (position, user_id, array) VALUES (%s, %s, %s)"
+            cursor.execute(query, (key, vec.profile.id, array_str))
+
+        conn.commit()
+
         for key, vec in self.db.items():
-            df = pd.DataFrame(vec.arr if hasattr(vec, 'arr') else vec).T  # Ensure vec is convertible to DataFrame
-            tablename = f'vector_{key}'
-            writer.write(df, tablename)
+            array_str = ','.join(map(str, vec.arr))
+            query = "INSERT IGNORE INTO unsalted_vectors (position, user_id, array) VALUES (%s, %s, %s)"
+            cursor.execute(query, (key, vec.profile.id, array_str))
+
+        conn.commit()
+        writer.close()
         
         # Serialize FAISS index to disk
         faiss.write_index(self.faiss, "data/faiss_database")
@@ -50,12 +100,12 @@ class Database:
     def find(self, arr, k=1):
         vec_arr = np.array(arr).astype('float32').reshape(1, -1)
         U_D, U_I = self.faiss.search(vec_arr, k)  # D is the distance, I is the index of the nearest neighbor
-        S_D, S_I = self.sfaiss.search(vec_arr, k) #search salted database
+        S_D, S_I = self.sfaiss.search(vec_arr, k) # search salted database
 
         if k == 1:
-            return (U_I[0][0], U_D[0][0]), (S_D[0][0], S_I[0][0])
+            return (U_I[0][0], U_D[0][0]), (S_I[0][0], S_D[0][0])
         
-        return (U_I[0], U_D[0]), (S_D[0], S_I[0]) # Returning index and distance of the most similar vector
+        return (U_I[0], U_D[0]), (S_I[0], S_D[0]) # Returning index and distance of the most similar vector
     
     """
     Inserts a new vector into the dict and faiss
@@ -71,7 +121,7 @@ class Database:
 
         #Add the new vector to the dict
         self.db[self.faiss.ntotal] = vec
-        self.db[self.sfiass.ntotal] = vec
+        self.salted_db[self.sfaiss.ntotal] = vec
 
         # Convert the array to a NumPy array and ensure it is two-dimensional
         new_vector_arr = np.array(vec.arr).astype('float32').reshape(1, -1)
@@ -79,26 +129,3 @@ class Database:
         # Add the new vector to the FAISS index
         self.faiss.add(new_vector_arr)
         self.sfaiss.add(new_vector_arr)
-
-def main():
-    test = np.random.random((100000, 256)).astype('float32')
-
-    #test database initialization
-    database = Database(256)
-    i = 1
-    for arr in test:
-        database.insert(arr)
-        i+=1
-    print("Database created")
-
-    #print first vector in db
-    print(database.db[0])
-
-    #test find 10 matching vectors
-    result = database.find(np.random.random((1, 256)).astype('float32'), 10)
-    print(result)
-    for item in result[0]:
-        print('\t', 'rank :', database.db[item].arr)
-
-if __name__ == "__main__":
-    main()

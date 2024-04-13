@@ -2,7 +2,7 @@
 Profile object to identify user
 """
 class Profile:
-    def __init__(self, id):
+    def __init__(self, id='test'):
         self.vectors = []
         self.id = id
 

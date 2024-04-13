@@ -5,8 +5,7 @@ import logging
 import csv
 import pandas as pd
 import warnings
-import mysql.connector as sql
-from sqlalchemy import create_engine
+import mysql.connector
 from tqdm import tqdm as tq
 
 ###LOGGING SETUP###
@@ -300,48 +299,18 @@ class TSVWriter:
 Class for loading files from .sql format
 """
 class SQLReader:
-    def __init__(self, server="localhost", db="mysql", username="root", psswd=""):
+    def __init__(self, server="localhost", db="mysql", uname="root", psswd=""):
         logger.debug("====START OF LOG====") #start of logging session
-        self.data = {}
 
         try:
             #try to connect to the db
-            self.db = sql.connect(user=username, password=psswd, host=server, database=db)
-            self.cursor = self.db.cursor()
+            self.connection = mysql.connector.connect(user=uname, password=psswd, host=server, database=db)
+            self.cursor = self.connection.cursor()
             logger.info("Connected to database : " + str(db) + " --- on server : " + str(server))
         except:
             logger.exception("Issue connecting to database")
             return
-
-        #get tables in db
-        tables = self.get_tables()
-        logger.info(str(len(tables)) + " were found in database : " + str(db))
-
-        #append dict using <tablename, dataframe> with returned data
-        for (tablename,) in tables:
-            self.data[tablename] = self.get_data(tablename)
-
-        logger.debug("All files loaded and appened to dict as <tablename, dataframe>...")
-        logger.info("====END OF LOG====\n")
-        return
         
-    """
-    Returns list of tablenames in database
-    Requires: None
-    Returns: list of tablenames
-    """
-    def get_tables(self):
-        self.cursor.execute("SHOW TABLES;")
-        return self.cursor.fetchall()
-    
-    """
-    Returns SQL table as pandas df
-    Requires: tablename (str)
-    Returns: pandas df
-    """
-    def get_data(self, tablename):
-        return pd.read_sql(str('SELECT * FROM ' + str(tablename)) + ';', con=self.db)
-    
     """
     Closes the cursor and connection to the database.
     Requires: None
@@ -350,7 +319,7 @@ class SQLReader:
     def close(self):
         self.cursor.close()
         logger.info("**** Cursor Closed. *****")
-        self.db.close()
+        self.connection.close()
         logger.info("**** Connection Closed. ****\n====END OF LOG====\n")
             
 """
@@ -358,42 +327,27 @@ Class for writing files to sql table
 @TODO. This may require SQLAlchemy implementation.
 """
 class SQLWriter:
-    def __init__(self, db, username="root", password="", host="localhost", port=3306, new=False):
-        # Connection string format for SQLAlchemy
-        conn_str = f'mysql+mysqlconnector://{username}:{password}@{host}:{port}/{db}'
-        self.engine = create_engine(conn_str)
-
-        if new:
-            # If the database is new, create it. This requires a separate connection to the MySQL server without specifying the database.
-            try:
-                temp_engine = create_engine(f'mysql+mysqlconnector://{username}:{password}@{host}:{port}/')
-                with temp_engine.connect() as conn:
-                    conn.execute(f"CREATE DATABASE IF NOT EXISTS {db}")
-                    logger.info(f"New database '{db}' created successfully.")
-            except Exception as e:
-                logger.error(f"Failed to create new database '{db}'. Error: {e}")
-                
-        logger.info(f"Connected to database '{db}' on host '{host}'.")
-
-    """
-    Writes passed dataframe to open SQL database
-    Requires: df - pandas dataframe, tablename - str for desired name of table, idx - indexing
-    Returns: None
-    """
-    def write(self, df, tablename, if_exists='replace', index=False):
+    def __init__(self, server="localhost", db="mysql", uname="root", psswd=""):
+        logger.debug("====START OF LOG====") #start of logging session
+        
         try:
-            df.to_sql(name=tablename, con=self.engine, if_exists=if_exists, index=index)
-            logger.info(f"Data successfully written to table '{tablename}'.")
-        except Exception as e:
-            logger.error(f"Failed to write data to table '{tablename}'. Error: {e}")
-    
+            self.connection = mysql.connector.connect(host=server, database=db, user=uname, password=psswd)
+            self.cursor = self.connection.cursor()
+            logger.info("Connected to database : " + str(db) + " --- on server : " + str(server))
+        except:
+            logger.exception("Issue connecting to database")
+            return
+
     """
-    Closes the connection to the database.
+    Closes the cursor and connection to the database.
     Requires: None
     Returns: None
     """
     def close(self):
-        logger.info("SQLWriter is closed.")
+        self.cursor.close()
+        logger.info("**** Cursor Closed. *****")
+        self.connection.close()
+        logger.info("**** Connection Closed. ****\n====END OF LOG====\n")
 
 """
 Class for laoding .sql file to sql database

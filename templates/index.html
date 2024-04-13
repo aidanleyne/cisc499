@@ -39,6 +39,8 @@
     <body>
         <div style="text-align: center;">
           <label for="inputField" id="eventsLeftText">Type something: (300 events)</label><br>
+          <p id="unsalted" style.display="none"></p>
+          <p id="salted" style.display="none"></p>
           <input type="text" id="inputField" name="inputField">
         </div>
         <div id="formButtonWrapper">
@@ -51,6 +53,9 @@
         <div style="display: flex; justify-content: center; align-items: center;">
           <canvas id="myCanvas" width="600" height="481"></canvas>
         </div>
+        
+        <p id="databaseEntries">Database Entries: Loading...</p>
+
         <script>
         var typingData = {
           RELEASE_TIME : [],
@@ -60,6 +65,8 @@
         var image_generated = false;
         var keyDown;
         var buttonStatus = null;
+
+        fetchDatabaseEntries();
 
         //generates the phase image to display to the user
         function generateImage() {
@@ -161,8 +168,12 @@
           fetch('/lookup')
             .then(response => response.json())
             .then(data => {
-              document.getElementById("eventsLeftText").innerHTML = 'Your unsalted user ID is: ' + data.unsalted + '. Refresh page to try again.';
-              document.getElementById("eventsLeftText").innerHTML = 'Your salted user ID is: ' + data.salted + '. Refresh page to try again.';
+              document.getElementById("unsalted").innerHTML = 
+              'Your unsalted user ID is: ' + data.unsalted + ' at a distance: ' + data.unsalted_distance
+              document.getElementById("salted").innerHTML = 'Your salted user ID is: ' + data.salted + 
+              ' at a distance: ' + data.salted_distance + '. Refresh page to try again.';
+              document.getElementById("salted").style.display = "block";
+              document.getElementById("salted").style.display = "block";
               document.getElementById("eventsLeftText").style.color = "#333";
               document.getElementById("inputField").style.display = 'none';
               document.getElementById("formButtonWrapper").style.display = 'none';
@@ -197,6 +208,21 @@
             }
           }
         });
+        
+        // Function to fetch and display database entry counts
+        function fetchDatabaseEntries() {
+            fetch('/get_num_entries')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('databaseEntries').innerHTML = 
+                        `Database Entries: Salted: ${data.salted}, Unsalted: ${data.unsalted}`;
+                })
+                .catch(error => {
+                    console.error('Error fetching database entries:', error);
+                    document.getElementById('databaseEntries').innerHTML = 
+                        'Failed to load number of database entries.';
+                });
+        }
         </script>
     </body>
 </html>
