@@ -23,3 +23,6 @@ Images do not come pre-loaded with this service apart from the two files sitting
 3. run ```add_salted_users.py```
 4. under ```data_database``` delete this file.
 5. drop and recreate the table ```unsalted_vectors```
+
+## Questions:
+Please feel free to contact me with any questions.
